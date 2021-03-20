@@ -12,18 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.alchemyURL = void 0;
 const prom_client_1 = require("prom-client");
 const express_1 = __importDefault(require("express"));
+const fuse_node_commonjs2_js_1 = __importDefault(require("./fuse.node.commonjs2.js"));
+// TODO: Change to use .env
+exports.alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
+const fuse = new fuse_node_commonjs2_js_1.default(exports.alchemyURL);
 const app = express_1.default();
 const port = 1337;
-const c = new prom_client_1.Counter({
-    name: "test_counter",
-    help: "Example of a counter",
-    labelNames: ["code"],
+const tvl = new prom_client_1.Gauge({
+    name: "fuse_tvl",
+    help: "Total $ Value Locked In Fuse",
 });
-setInterval(() => {
-    c.inc({ code: 200 });
-}, 1000);
+setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+    const { 2: totalSuppliedETH, } = yield fuse.contracts.FusePoolLens.methods
+        .getPublicPoolsWithData()
+        .call({ gas: 1e18 });
+    const ethPrice = (yield fuse.web3.utils.fromWei(yield fuse.getEthUsdPriceBN()));
+    const totalETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+    tvl.set(totalETH * ethPrice);
+}), 1000);
 app.get("/metrics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.set("Content-Type", prom_client_1.register.contentType);
     res.end(yield prom_client_1.register.metrics());
