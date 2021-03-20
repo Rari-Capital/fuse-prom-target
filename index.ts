@@ -14,9 +14,17 @@ const tvl = new Gauge({
   name: "fuse_tvl",
   help: "Total $ Value Locked In Fuse",
 });
+
+const tvb = new Gauge({
+  name: "fuse_tvb",
+  help: "Total $ Value Borrowed On Fuse",
+});
+
+// Event loop
 setInterval(async () => {
   const {
     2: totalSuppliedETH,
+    3: totalBorrowedETH,
   } = await fuse.contracts.FusePoolLens.methods
     .getPublicPoolsWithData()
     .call({ gas: 1e18 });
@@ -25,9 +33,11 @@ setInterval(async () => {
     await fuse.getEthUsdPriceBN()
   )) as any;
 
-  const totalETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+  const tvlETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+  const tvbETH = totalBorrowedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
 
-  tvl.set(totalETH * ethPrice);
+  tvl.set(tvlETH * ethPrice);
+  tvb.set(tvbETH * ethPrice);
 }, 1000);
 
 app.get("/metrics", async (req, res) => {
@@ -36,5 +46,5 @@ app.get("/metrics", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`server started at http://localhost:${port}`);
+  console.log(`server started at http://localhost:${port}/metrics`);
 });

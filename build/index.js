@@ -25,13 +25,20 @@ const tvl = new prom_client_1.Gauge({
     name: "fuse_tvl",
     help: "Total $ Value Locked In Fuse",
 });
+const tvb = new prom_client_1.Gauge({
+    name: "fuse_tvb",
+    help: "Total $ Value Borrowed On Fuse",
+});
+// Event loop
 setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
-    const { 2: totalSuppliedETH, } = yield fuse.contracts.FusePoolLens.methods
+    const { 2: totalSuppliedETH, 3: totalBorrowedETH, } = yield fuse.contracts.FusePoolLens.methods
         .getPublicPoolsWithData()
         .call({ gas: 1e18 });
     const ethPrice = (yield fuse.web3.utils.fromWei(yield fuse.getEthUsdPriceBN()));
-    const totalETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
-    tvl.set(totalETH * ethPrice);
+    const tvlETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+    const tvbETH = totalBorrowedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+    tvl.set(tvlETH * ethPrice);
+    tvb.set(tvbETH * ethPrice);
 }), 1000);
 app.get("/metrics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.set("Content-Type", prom_client_1.register.contentType);
