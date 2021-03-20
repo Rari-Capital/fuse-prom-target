@@ -1,6 +1,7 @@
 import { Gauge, register } from "prom-client";
 import express from "express";
 
+// TODO: Use exported commonjs build from fuse-sdk once added
 import Fuse from "./fuse.node.commonjs2.js";
 
 // TODO: Change to use .env
@@ -10,21 +11,32 @@ const fuse = new Fuse(alchemyURL);
 const app = express();
 const port = 1337;
 
-const tvl = new Gauge({
+let tvl = new Gauge({
   name: "fuse_tvl",
   help: "Total $ Value Locked In Fuse",
 });
 
-const tvb = new Gauge({
+let tvb = new Gauge({
   name: "fuse_tvb",
   help: "Total $ Value Borrowed On Fuse",
 });
 
+let underwaterUsers = new Gauge({
+  name: "fuse_underwaterUsers",
+  help: "Users who need to be liquidated.",
+});
+
+let poolGauges = [];
+
 // Event loop
 setInterval(async () => {
   const {
+    0: ids,
+    1: fusePools,
     2: totalSuppliedETH,
     3: totalBorrowedETH,
+    4: underlyingTokens,
+    5: underlyingSymbols,
   } = await fuse.contracts.FusePoolLens.methods
     .getPublicPoolsWithData()
     .call({ gas: 1e18 });
@@ -33,11 +45,42 @@ setInterval(async () => {
     await fuse.getEthUsdPriceBN()
   )) as any;
 
-  const tvlETH = totalSuppliedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
-  const tvbETH = totalBorrowedETH.reduce((a, b) => a + parseInt(b), 0) / 1e18;
+  let _tvl = 0;
+  let _tvb = 0;
+  for (let i = 0; i < ids.length; i++) {
+    try {
+      const id = ids[i];
 
-  tvl.set(tvlETH * ethPrice);
-  tvb.set(tvbETH * ethPrice);
+      let poolTVL = new Gauge({
+        name: "fuse_pool_tvl_" + id,
+        help: "Total $ Value Supplied On Pool #" + id,
+      });
+
+      let poolTVB = new Gauge({
+        name: "fuse_pool_tvb_" + ids[i],
+        help: "Total $ Value Borrowed On Pool #" + id,
+      });
+
+      const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
+      const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
+      poolTVL.set(usdTVL);
+      poolTVB.set(usdTVB);
+      _tvl += usdTVL;
+      _tvb += usdTVB;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  tvl.set(_tvl);
+  tvb.set(_tvb);
+
+  const underwaterUsersArray = await fuse.contracts.FusePoolLens.methods
+    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1e18))
+    .call()
+    .then((result: string[][][]) => result[1].flat());
+
+  underwaterUsers.set(underwaterUsersArray.length);
 }, 1000);
 
 app.get("/metrics", async (req, res) => {
