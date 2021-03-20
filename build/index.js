@@ -23,7 +23,7 @@ const c = new prom_client_1.Counter({
 });
 setInterval(() => {
     c.inc({ code: 200 });
-}, 5000);
+}, 1000);
 app.get("/metrics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.set("Content-Type", prom_client_1.register.contentType);
     res.end(yield prom_client_1.register.metrics());

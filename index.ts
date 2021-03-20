@@ -12,7 +12,7 @@ const c = new Counter({
 
 setInterval(() => {
   c.inc({ code: 200 });
-}, 5000);
+}, 1000);
 
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
