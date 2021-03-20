@@ -61,10 +61,14 @@ var underwaterUsers = new prom_client_1.Gauge({
     name: "fuse_underwaterUsers",
     help: "Users who need to be liquidated.",
 });
+var atRiskUsers = new prom_client_1.Gauge({
+    name: "fuse_atRiskUsers",
+    help: "Users who are 20% away from liquidation.",
+});
 var poolGauges = [];
 // Event loop
 setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, ids, fusePools, totalSuppliedETH, totalBorrowedETH, underlyingTokens, underlyingSymbols, ethPrice, _b, _c, _tvl, _tvb, i, id, poolTVL, poolTVB, usdTVL, usdTVB, underwaterUsersArray;
+    var _a, ids, fusePools, totalSuppliedETH, totalBorrowedETH, underlyingTokens, underlyingSymbols, ethPrice, _b, _c, _tvl, _tvb, i, id, poolTVL, poolTVB, usdTVL, usdTVB, atRiskUsersArray, underwaterUsersArray;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0: return [4 /*yield*/, fuse.contracts.FusePoolLens.methods
@@ -82,6 +86,7 @@ setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
                 for (i = 0; i < ids.length; i++) {
                     try {
                         id = ids[i];
+                        // Register all gauges if haven't already
                         if (!poolGauges[id]) {
                             poolTVL = new prom_client_1.Gauge({
                                 name: "fuse_pool_tvl_" + id,
@@ -107,10 +112,17 @@ setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
                 tvl.set(_tvl);
                 tvb.set(_tvb);
                 return [4 /*yield*/, fuse.contracts.FusePoolLens.methods
-                        .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1e18))
+                        .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1.2e18))
                         .call()
                         .then(function (result) { return result[1].flat(); })];
             case 4:
+                atRiskUsersArray = _d.sent();
+                atRiskUsers.set(atRiskUsersArray.length);
+                return [4 /*yield*/, fuse.contracts.FusePoolLens.methods
+                        .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1e18))
+                        .call()
+                        .then(function (result) { return result[1].flat(); })];
+            case 5:
                 underwaterUsersArray = _d.sent();
                 underwaterUsers.set(underwaterUsersArray.length);
                 return [2 /*return*/];

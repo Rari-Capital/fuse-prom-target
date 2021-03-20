@@ -26,6 +26,11 @@ let underwaterUsers = new Gauge({
   help: "Users who need to be liquidated.",
 });
 
+let atRiskUsers = new Gauge({
+  name: "fuse_atRiskUsers",
+  help: "Users who are 20% away from liquidation.",
+});
+
 let poolGauges: { poolTVL: any; poolTVB: any }[] = [];
 
 // Event loop
@@ -51,6 +56,7 @@ setInterval(async () => {
     try {
       const id = ids[i];
 
+      // Register all gauges if haven't already
       if (!poolGauges[id]) {
         let poolTVL = new Gauge({
           name: "fuse_pool_tvl_" + id,
@@ -78,6 +84,13 @@ setInterval(async () => {
 
   tvl.set(_tvl);
   tvb.set(_tvb);
+
+  const atRiskUsersArray = await fuse.contracts.FusePoolLens.methods
+    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1.2e18))
+    .call()
+    .then((result: string[][][]) => result[1].flat());
+
+  atRiskUsers.set(atRiskUsersArray.length);
 
   const underwaterUsersArray = await fuse.contracts.FusePoolLens.methods
     .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1e18))
