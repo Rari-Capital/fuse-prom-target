@@ -26,7 +26,7 @@ let underwaterUsers = new Gauge({
   help: "Users who need to be liquidated.",
 });
 
-let poolGauges = [];
+let poolGauges: { poolTVL: any; poolTVB: any }[] = [];
 
 // Event loop
 setInterval(async () => {
@@ -51,20 +51,24 @@ setInterval(async () => {
     try {
       const id = ids[i];
 
-      let poolTVL = new Gauge({
-        name: "fuse_pool_tvl_" + id,
-        help: "Total $ Value Supplied On Pool #" + id,
-      });
+      if (!poolGauges[id]) {
+        let poolTVL = new Gauge({
+          name: "fuse_pool_tvl_" + id,
+          help: "Total $ Value Supplied On Pool #" + id,
+        });
 
-      let poolTVB = new Gauge({
-        name: "fuse_pool_tvb_" + ids[i],
-        help: "Total $ Value Borrowed On Pool #" + id,
-      });
+        let poolTVB = new Gauge({
+          name: "fuse_pool_tvb_" + ids[i],
+          help: "Total $ Value Borrowed On Pool #" + id,
+        });
+
+        poolGauges[id] = { poolTVL, poolTVB };
+      }
 
       const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
       const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
-      poolTVL.set(usdTVL);
-      poolTVB.set(usdTVB);
+      poolGauges[id].poolTVL.set(usdTVL);
+      poolGauges[id].poolTVB.set(usdTVB);
       _tvl += usdTVL;
       _tvb += usdTVB;
     } catch (err) {

@@ -82,18 +82,21 @@ setInterval(function () { return __awaiter(void 0, void 0, void 0, function () {
                 for (i = 0; i < ids.length; i++) {
                     try {
                         id = ids[i];
-                        poolTVL = new prom_client_1.Gauge({
-                            name: "fuse_pool_tvl_" + id,
-                            help: "Total $ Value Supplied On Pool #" + id,
-                        });
-                        poolTVB = new prom_client_1.Gauge({
-                            name: "fuse_pool_tvb_" + ids[i],
-                            help: "Total $ Value Borrowed On Pool #" + id,
-                        });
+                        if (!poolGauges[id]) {
+                            poolTVL = new prom_client_1.Gauge({
+                                name: "fuse_pool_tvl_" + id,
+                                help: "Total $ Value Supplied On Pool #" + id,
+                            });
+                            poolTVB = new prom_client_1.Gauge({
+                                name: "fuse_pool_tvb_" + ids[i],
+                                help: "Total $ Value Borrowed On Pool #" + id,
+                            });
+                            poolGauges[id] = { poolTVL: poolTVL, poolTVB: poolTVB };
+                        }
                         usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
                         usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
-                        poolTVL.set(usdTVL);
-                        poolTVB.set(usdTVB);
+                        poolGauges[id].poolTVL.set(usdTVL);
+                        poolGauges[id].poolTVB.set(usdTVB);
                         _tvl += usdTVL;
                         _tvb += usdTVB;
                     }
