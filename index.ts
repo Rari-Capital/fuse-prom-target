@@ -1,7 +1,6 @@
 import { Gauge, register } from "prom-client";
 import express from "express";
 
-// TODO: Use exported commonjs build from fuse-sdk once added
 import Fuse from "./fuse.node.commonjs2.js";
 
 // TODO: Change to use .env
@@ -28,31 +27,31 @@ let leveragedUsers = new Gauge({
     "Users who are <40% away from liquidation. Does not count at risk users.",
 });
 
-let poolTVL = new Gauge({
-  name: "fuse_pool_tvl",
-  help: "Total $ Value Supplied On Each Pool",
-  labelNames: ["id"] as const,
-});
-
-let poolTVB = new Gauge({
-  name: "fuse_pool_tvb",
-  help: "Total $ Value Borrowed On Each Pool",
-  labelNames: ["id"] as const,
-});
-
-let poolSuppliedAssets = new Gauge({
-  name: "fuse_pool_assets_supply",
+let poolSuppliedAssetsAmount = new Gauge({
+  name: "fuse_pool_assets_supply_amount",
   help: "Stores how much of each asset is supplied in each pool.",
   labelNames: ["id", "symbol"] as const,
 });
 
-let poolBorrowedAssets = new Gauge({
-  name: "fuse_pool_assets_borrow",
+let poolBorrowedAssetsAmount = new Gauge({
+  name: "fuse_pool_assets_borrow_amount",
   help: "Stores how much of each asset is borrowed in each pool.",
   labelNames: ["id", "symbol"] as const,
 });
 
-function fetchusersWithHealth(fuse: any, maxHealth: number) {
+let poolSuppliedAssetsUSD = new Gauge({
+  name: "fuse_pool_assets_supply_usd",
+  help: "Stores how much of each asset is supplied in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolBorrowedAssetsUSD = new Gauge({
+  name: "fuse_pool_assets_borrow_usd",
+  help: "Stores how much of each asset is borrowed in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+function fetchUsersWithHealth(fuse: any, maxHealth: number) {
   return fuse.contracts.FusePoolLens.methods
     .getPublicPoolUsersWithData(fuse.web3.utils.toBN(maxHealth))
     .call()
@@ -97,58 +96,81 @@ export interface FuseAsset {
 
 // Event loop
 setInterval(async () => {
-  const {
-    0: ids,
-    1: fusePools,
-    2: totalSuppliedETH,
-    3: totalBorrowedETH,
-  } = await fuse.contracts.FusePoolLens.methods
-    .getPublicPoolsWithData()
-    .call({ gas: 1e18 });
+  const thisInterval = Date.now();
 
-  const ethPrice: number = (await fuse.web3.utils.fromWei(
-    await fuse.getEthUsdPriceBN()
-  )) as any;
+  console.time("poolData " + thisInterval);
+  const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
+    fuse.contracts.FusePoolLens.methods
+      .getPublicPoolsWithData()
+      .call({ gas: 1e18 }),
+    fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number,
+  ]);
+  console.timeEnd("poolData " + thisInterval);
 
+  console.time("assetData " + thisInterval);
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
 
-    const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
-    const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
-
-    poolTVL.set({ id }, usdTVL);
-    poolTVB.set({ id }, usdTVB);
-
-    const assets: FuseAsset[] = await fuse.contracts.FusePoolLens.methods
+    fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
-      .call({ from: "0x0000000000000000000000000000000000000000", gas: 1e18 });
+      .call({
+        from: "0x0000000000000000000000000000000000000000",
+        gas: 1e18,
+      })
+      .then((assets: FuseAsset[]) => {
+        assets.forEach((asset) => {
+          // Amount
 
-    assets.forEach((asset) => {
-      poolSuppliedAssets.set(
-        { id, symbol: asset.underlyingSymbol },
-        asset.totalSupply / 10 ** asset.underlyingDecimals
-      );
+          poolSuppliedAssetsAmount.set(
+            { id, symbol: asset.underlyingSymbol },
+            asset.totalSupply / 10 ** asset.underlyingDecimals
+          );
 
-      poolBorrowedAssets.set(
-        { id, symbol: asset.underlyingSymbol },
-        asset.totalBorrow / 10 ** asset.underlyingDecimals
-      );
-    });
+          poolBorrowedAssetsAmount.set(
+            { id, symbol: asset.underlyingSymbol },
+            asset.totalBorrow / 10 ** asset.underlyingDecimals
+          );
+
+          // USD
+
+          poolSuppliedAssetsUSD.set(
+            { id, symbol: asset.underlyingSymbol },
+            ((asset.totalSupply * asset.underlyingPrice) / 1e36) * ethPrice
+          );
+
+          poolBorrowedAssetsUSD.set(
+            { id, symbol: asset.underlyingSymbol },
+            ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice
+          );
+        });
+
+        // If we've fetched all the asset data:
+        if (i === ids.length - 1) {
+          console.timeEnd("assetData " + thisInterval);
+        }
+      });
   }
 
-  const underwaterUsersArray = await fetchusersWithHealth(fuse, 1e18);
-  underwaterUsers.set(underwaterUsersArray.length);
+  console.time("userLeverage " + thisInterval);
+  const [
+    underwaterUsersArray,
+    atRiskUsersArray,
+    leveragedUsersArray,
+  ] = await Promise.all([
+    fetchUsersWithHealth(fuse, 1e18),
+    fetchUsersWithHealth(fuse, 1.2e18),
+    fetchUsersWithHealth(fuse, 1.4e18),
+  ]);
 
-  const atRiskUsersArray = await fetchusersWithHealth(fuse, 1.2e18);
+  underwaterUsers.set(underwaterUsersArray.length);
   atRiskUsers.set(
     removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
   );
-
-  const leveragedUsersArray = await fetchusersWithHealth(fuse, 1.4e18);
   leveragedUsers.set(
     removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
   );
-}, 1000);
+  console.timeEnd("userLeverage " + thisInterval);
+}, 5000);
 
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
