@@ -38,6 +38,18 @@ let leveragedUsers = new Gauge({
     "Users who are <40% away from liquidation. Does not count at risk users.",
 });
 
+let poolTVL = new Gauge({
+  name: "fuse_pool_tvl",
+  help: "Total $ Value Supplied On Each Pool",
+  labelNames: ["id"] as const,
+});
+
+let poolTVB = new Gauge({
+  name: "fuse_pool_tvb",
+  help: "Total $ Value Borrowed On Each Pool",
+  labelNames: ["id"] as const,
+});
+
 function fetchusersWithHealth(fuse: any, maxHealth: number) {
   return fuse.contracts.FusePoolLens.methods
     .getPublicPoolUsersWithData(fuse.web3.utils.toBN(maxHealth))
@@ -52,8 +64,6 @@ function removeDoubleCounts(array1: any[], array2: any[]) {
     return array2.indexOf(val) == -1;
   });
 }
-
-let poolGauges: { poolTVL: any; poolTVB: any }[] = [];
 
 // Event loop
 setInterval(async () => {
@@ -75,33 +85,15 @@ setInterval(async () => {
   let _tvl = 0;
   let _tvb = 0;
   for (let i = 0; i < ids.length; i++) {
-    try {
-      const id = ids[i];
+    const id = ids[i];
 
-      // Register all gauges if haven't already
-      if (!poolGauges[id]) {
-        let poolTVL = new Gauge({
-          name: "fuse_pool_tvl_" + id,
-          help: "Total $ Value Supplied On Pool #" + id,
-        });
-
-        let poolTVB = new Gauge({
-          name: "fuse_pool_tvb_" + ids[i],
-          help: "Total $ Value Borrowed On Pool #" + id,
-        });
-
-        poolGauges[id] = { poolTVL, poolTVB };
-      }
-
-      const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
-      const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
-      poolGauges[id].poolTVL.set(usdTVL);
-      poolGauges[id].poolTVB.set(usdTVB);
-      _tvl += usdTVL;
-      _tvb += usdTVB;
-    } catch (err) {
-      console.log(err);
-    }
+    const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
+    const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
+    poolTVL.set({ id }, usdTVL);
+    poolTVB.set({ id }, usdTVB);
+    // poolGauges[id].poolTVB.set(usdTVB);
+    _tvl += usdTVL;
+    _tvb += usdTVB;
   }
 
   tvl.set(_tvl);
@@ -111,10 +103,14 @@ setInterval(async () => {
   underwaterUsers.set(underwaterUsersArray.length);
 
   const atRiskUsersArray = await fetchusersWithHealth(fuse, 1.2e18);
-  atRiskUsers.set(atRiskUsersArray.length);
+  atRiskUsers.set(
+    removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+  );
 
   const leveragedUsersArray = await fetchusersWithHealth(fuse, 1.4e18);
-  leveragedUsers.set(leveragedUsersArray.length);
+  leveragedUsers.set(
+    removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
+  );
 }, 1000);
 
 app.get("/metrics", async (req, res) => {
