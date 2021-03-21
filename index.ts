@@ -24,12 +24,37 @@ let tvb = new Gauge({
 let underwaterUsers = new Gauge({
   name: "fuse_underwaterUsers",
   help: "Users who need to be liquidated.",
+  labelNames: ["users"] as const,
 });
 
 let atRiskUsers = new Gauge({
   name: "fuse_atRiskUsers",
-  help: "Users who are 20% away from liquidation.",
+  help:
+    "Users who are <20% away from liquidation. Does not count underwater users.",
+  labelNames: ["users"] as const,
 });
+
+let leveragedUsers = new Gauge({
+  name: "fuse_leveragedUsers",
+  help:
+    "Users who are <40% away from liquidation. Does not count at risk users.",
+  labelNames: ["users"] as const,
+});
+
+function fetchusersWithHealth(fuse: any, maxHealth: number) {
+  return fuse.contracts.FusePoolLens.methods
+    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(maxHealth))
+    .call()
+    .then((result: { account: string }[][][]) =>
+      result[1].flat().map((data) => data.account)
+    ) as Promise<string[]>;
+}
+
+function removeDoubleCounts(array1: any[], array2: any[]) {
+  return array1.filter(function (val) {
+    return array2.indexOf(val) == -1;
+  });
+}
 
 let poolGauges: { poolTVL: any; poolTVB: any }[] = [];
 
@@ -85,19 +110,33 @@ setInterval(async () => {
   tvl.set(_tvl);
   tvb.set(_tvb);
 
-  const atRiskUsersArray = await fuse.contracts.FusePoolLens.methods
-    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1.2e18))
-    .call()
-    .then((result: string[][][]) => result[1].flat());
+  const underwaterUsersArray = await fetchusersWithHealth(fuse, 1e18);
+  underwaterUsers.set(
+    {
+      users: underwaterUsersArray.join(", "),
+    },
+    underwaterUsersArray.length
+  );
 
-  atRiskUsers.set(atRiskUsersArray.length);
+  const atRiskUsersArray = await fetchusersWithHealth(fuse, 1.2e18);
+  atRiskUsers.set(
+    {
+      users: removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).join(
+        ", "
+      ),
+    },
+    atRiskUsersArray.length
+  );
 
-  const underwaterUsersArray = await fuse.contracts.FusePoolLens.methods
-    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(1e18))
-    .call()
-    .then((result: string[][][]) => result[1].flat());
-
-  underwaterUsers.set(underwaterUsersArray.length);
+  const leveragedUsersArray = await fetchusersWithHealth(fuse, 1.4e18);
+  leveragedUsers.set(
+    {
+      users: removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).join(
+        ", "
+      ),
+    },
+    leveragedUsersArray.length
+  );
 }, 1000);
 
 app.get("/metrics", async (req, res) => {
