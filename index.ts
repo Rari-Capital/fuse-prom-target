@@ -24,21 +24,18 @@ let tvb = new Gauge({
 let underwaterUsers = new Gauge({
   name: "fuse_underwaterUsers",
   help: "Users who need to be liquidated.",
-  labelNames: ["users"] as const,
 });
 
 let atRiskUsers = new Gauge({
   name: "fuse_atRiskUsers",
   help:
     "Users who are <20% away from liquidation. Does not count underwater users.",
-  labelNames: ["users"] as const,
 });
 
 let leveragedUsers = new Gauge({
   name: "fuse_leveragedUsers",
   help:
     "Users who are <40% away from liquidation. Does not count at risk users.",
-  labelNames: ["users"] as const,
 });
 
 function fetchusersWithHealth(fuse: any, maxHealth: number) {
@@ -111,32 +108,13 @@ setInterval(async () => {
   tvb.set(_tvb);
 
   const underwaterUsersArray = await fetchusersWithHealth(fuse, 1e18);
-  underwaterUsers.set(
-    {
-      users: underwaterUsersArray.join(", "),
-    },
-    underwaterUsersArray.length
-  );
+  underwaterUsers.set(underwaterUsersArray.length);
 
   const atRiskUsersArray = await fetchusersWithHealth(fuse, 1.2e18);
-  atRiskUsers.set(
-    {
-      users: removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).join(
-        ", "
-      ),
-    },
-    atRiskUsersArray.length
-  );
+  atRiskUsers.set(atRiskUsersArray.length);
 
   const leveragedUsersArray = await fetchusersWithHealth(fuse, 1.4e18);
-  leveragedUsers.set(
-    {
-      users: removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).join(
-        ", "
-      ),
-    },
-    leveragedUsersArray.length
-  );
+  leveragedUsers.set(leveragedUsersArray.length);
 }, 1000);
 
 app.get("/metrics", async (req, res) => {
