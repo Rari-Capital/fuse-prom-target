@@ -11,16 +11,6 @@ const fuse = new Fuse(alchemyURL);
 const app = express();
 const port = 1337;
 
-let tvl = new Gauge({
-  name: "fuse_tvl",
-  help: "Total $ Value Locked In Fuse",
-});
-
-let tvb = new Gauge({
-  name: "fuse_tvb",
-  help: "Total $ Value Borrowed On Fuse",
-});
-
 let underwaterUsers = new Gauge({
   name: "fuse_underwaterUsers",
   help: "Users who need to be liquidated.",
@@ -36,6 +26,16 @@ let leveragedUsers = new Gauge({
   name: "fuse_leveragedUsers",
   help:
     "Users who are <40% away from liquidation. Does not count at risk users.",
+});
+
+let tvl = new Gauge({
+  name: "fuse_tvl",
+  help: "Total $ Value Locked In Fuse",
+});
+
+let tvb = new Gauge({
+  name: "fuse_tvb",
+  help: "Total $ Value Borrowed On Fuse",
 });
 
 let poolTVL = new Gauge({
