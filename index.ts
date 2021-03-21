@@ -28,16 +28,6 @@ let leveragedUsers = new Gauge({
     "Users who are <40% away from liquidation. Does not count at risk users.",
 });
 
-let tvl = new Gauge({
-  name: "fuse_tvl",
-  help: "Total $ Value Locked In Fuse",
-});
-
-let tvb = new Gauge({
-  name: "fuse_tvb",
-  help: "Total $ Value Borrowed On Fuse",
-});
-
 let poolTVL = new Gauge({
   name: "fuse_pool_tvl",
   help: "Total $ Value Supplied On Each Pool",
@@ -82,22 +72,15 @@ setInterval(async () => {
     await fuse.getEthUsdPriceBN()
   )) as any;
 
-  let _tvl = 0;
-  let _tvb = 0;
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
 
     const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
     const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
+
     poolTVL.set({ id }, usdTVL);
     poolTVB.set({ id }, usdTVB);
-    // poolGauges[id].poolTVB.set(usdTVB);
-    _tvl += usdTVL;
-    _tvb += usdTVB;
   }
-
-  tvl.set(_tvl);
-  tvb.set(_tvb);
 
   const underwaterUsersArray = await fetchusersWithHealth(fuse, 1e18);
   underwaterUsers.set(underwaterUsersArray.length);
