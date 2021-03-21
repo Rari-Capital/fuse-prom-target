@@ -40,6 +40,18 @@ let poolTVB = new Gauge({
   labelNames: ["id"] as const,
 });
 
+let poolSuppliedAssets = new Gauge({
+  name: "fuse_pool_assets_supply",
+  help: "Stores how much of each asset is supplied in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolBorrowedAssets = new Gauge({
+  name: "fuse_pool_assets_borrow",
+  help: "Stores how much of each asset is borrowed in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
 function fetchusersWithHealth(fuse: any, maxHealth: number) {
   return fuse.contracts.FusePoolLens.methods
     .getPublicPoolUsersWithData(fuse.web3.utils.toBN(maxHealth))
@@ -55,6 +67,34 @@ function removeDoubleCounts(array1: any[], array2: any[]) {
   });
 }
 
+export interface FuseAsset {
+  cToken: string;
+
+  borrowBalance: number;
+  supplyBalance: number;
+  liquidity: number;
+
+  membership: boolean;
+
+  underlyingName: string;
+  underlyingSymbol: string;
+  underlyingToken: string;
+  underlyingDecimals: number;
+  underlyingPrice: number;
+
+  collateralFactor: number;
+  reserveFactor: number;
+
+  adminFee: number;
+  fuseFee: number;
+
+  borrowRatePerBlock: number;
+  supplyRatePerBlock: number;
+
+  totalBorrow: number;
+  totalSupply: number;
+}
+
 // Event loop
 setInterval(async () => {
   const {
@@ -62,8 +102,6 @@ setInterval(async () => {
     1: fusePools,
     2: totalSuppliedETH,
     3: totalBorrowedETH,
-    4: underlyingTokens,
-    5: underlyingSymbols,
   } = await fuse.contracts.FusePoolLens.methods
     .getPublicPoolsWithData()
     .call({ gas: 1e18 });
@@ -80,6 +118,22 @@ setInterval(async () => {
 
     poolTVL.set({ id }, usdTVL);
     poolTVB.set({ id }, usdTVB);
+
+    const assets: FuseAsset[] = await fuse.contracts.FusePoolLens.methods
+      .getPoolAssetsWithData(fusePools[i].comptroller)
+      .call({ from: "0x0000000000000000000000000000000000000000", gas: 1e18 });
+
+    assets.forEach((asset) => {
+      poolSuppliedAssets.set(
+        { id, symbol: asset.underlyingSymbol },
+        asset.totalSupply / 10 ** asset.underlyingDecimals
+      );
+
+      poolBorrowedAssets.set(
+        { id, symbol: asset.underlyingSymbol },
+        asset.totalBorrow / 10 ** asset.underlyingDecimals
+      );
+    });
   }
 
   const underwaterUsersArray = await fetchusersWithHealth(fuse, 1e18);
