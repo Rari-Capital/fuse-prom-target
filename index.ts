@@ -10,22 +10,13 @@ const fuse = new Fuse(alchemyURL);
 const app = express();
 const port = 1337;
 
-let underwaterUsers = new Gauge({
-  name: "fuse_underwaterUsers",
-  help: "Users who need to be liquidated.",
+let userLeverage = new Gauge({
+  name: "fuse_userLeverage",
+  help: "Stores how many users are at different levels of leverage",
+  // Levels: leveraged, at_risk, liquidatable
+  labelNames: ["id", "level"] as const,
 });
 
-let atRiskUsers = new Gauge({
-  name: "fuse_atRiskUsers",
-  help:
-    "Users who are <20% away from liquidation. Does not count underwater users.",
-});
-
-let leveragedUsers = new Gauge({
-  name: "fuse_leveragedUsers",
-  help:
-    "Users who are <40% away from liquidation. Does not count at risk users.",
-});
 let poolSuppliedAssetsAmount = new Gauge({
   name: "fuse_pool_assets_supply_amount",
   help: "Stores how much of each asset is supplied in each pool.",
@@ -50,12 +41,16 @@ let poolBorrowedAssetsUSD = new Gauge({
   labelNames: ["id", "symbol"] as const,
 });
 
-function fetchUsersWithHealth(fuse: any, maxHealth: number) {
+function fetchUsersWithHealth(
+  fuse: any,
+  comptroller: string,
+  maxHealth: number
+) {
   return fuse.contracts.FusePoolLens.methods
-    .getPublicPoolUsersWithData(fuse.web3.utils.toBN(maxHealth))
+    .getPoolUsersWithData(comptroller, fuse.web3.utils.toBN(maxHealth))
     .call()
-    .then((result: { account: string }[][][]) =>
-      result[1].flat().map((data) => data.account)
+    .then((result: { account: string }[][]) =>
+      result[0].map((data) => data.account)
     ) as Promise<string[]>;
 }
 
@@ -93,8 +88,7 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-// Event loop
-setInterval(async () => {
+const eventLoop = async () => {
   const thisInterval = Date.now();
 
   console.time("poolData " + thisInterval);
@@ -107,6 +101,7 @@ setInterval(async () => {
   console.timeEnd("poolData " + thisInterval);
 
   console.time("assetData " + thisInterval);
+  console.time("userLeverage " + thisInterval);
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
 
@@ -148,28 +143,37 @@ setInterval(async () => {
           console.timeEnd("assetData " + thisInterval);
         }
       });
+
+    Promise.all([
+      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
+      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.2e18),
+      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.4e18),
+    ]).then(([underwaterUsersArray, atRiskUsersArray, leveragedUsersArray]) => {
+      userLeverage.set(
+        { id, level: "liquidatable" },
+        underwaterUsersArray.length
+      );
+      userLeverage.set(
+        { id, level: "at_risk" },
+        removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+      );
+      userLeverage.set(
+        { id, level: "leveraged" },
+        removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
+      );
+
+      if (i === ids.length - 1) {
+        console.timeEnd("userLeverage " + thisInterval);
+      }
+    });
   }
+};
 
-  console.time("userLeverage " + thisInterval);
-  const [
-    underwaterUsersArray,
-    atRiskUsersArray,
-    leveragedUsersArray,
-  ] = await Promise.all([
-    fetchUsersWithHealth(fuse, 1e18),
-    fetchUsersWithHealth(fuse, 1.2e18),
-    fetchUsersWithHealth(fuse, 1.4e18),
-  ]);
+// Event loop
+setInterval(eventLoop, 10000);
 
-  underwaterUsers.set(underwaterUsersArray.length);
-  atRiskUsers.set(
-    removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-  );
-  leveragedUsers.set(
-    removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
-  );
-  console.timeEnd("userLeverage " + thisInterval);
-}, 5000);
+// Run instantly the first time.
+eventLoop();
 
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
