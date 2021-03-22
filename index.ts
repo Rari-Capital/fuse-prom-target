@@ -17,6 +17,13 @@ let userLeverage = new Gauge({
   labelNames: ["id", "level"] as const,
 });
 
+let poolAssetsInterestRate = new Gauge({
+  name: "fuse_pool_assets_interest_rate",
+  help: "Stores the interest rates of each asset in each pool.",
+  // Side: borrow, supply
+  labelNames: ["id", "symbol", "side"] as const,
+});
+
 let poolSuppliedAssetsAmount = new Gauge({
   name: "fuse_pool_assets_supply_amount",
   help: "Stores how much of each asset is supplied in each pool.",
@@ -135,6 +142,18 @@ const eventLoop = async () => {
           poolBorrowedAssetsUSD.set(
             { id, symbol: asset.underlyingSymbol },
             ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice
+          );
+
+          // Interst Rates
+
+          poolAssetsInterestRate.set(
+            { id, symbol: asset.underlyingSymbol, side: "supply" },
+            (asset.supplyRatePerBlock * 2372500) / 1e16
+          );
+
+          poolAssetsInterestRate.set(
+            { id, symbol: asset.underlyingSymbol, side: "borrow" },
+            (asset.borrowRatePerBlock * 2372500) / 1e16
           );
         });
 
