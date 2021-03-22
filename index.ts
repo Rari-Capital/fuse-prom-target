@@ -26,19 +26,6 @@ let leveragedUsers = new Gauge({
   help:
     "Users who are <40% away from liquidation. Does not count at risk users.",
 });
-
-let poolTVL = new Gauge({
-  name: "fuse_pool_tvl",
-  help: "Total $ Value Supplied On Each Pool",
-  labelNames: ["id"] as const,
-});
-
-let poolTVB = new Gauge({
-  name: "fuse_pool_tvb",
-  help: "Total $ Value Borrowed On Each Pool",
-  labelNames: ["id"] as const,
-});
-
 let poolSuppliedAssetsAmount = new Gauge({
   name: "fuse_pool_assets_supply_amount",
   help: "Stores how much of each asset is supplied in each pool.",
@@ -111,10 +98,7 @@ setInterval(async () => {
   const thisInterval = Date.now();
 
   console.time("poolData " + thisInterval);
-  const [
-    { 0: ids, 1: fusePools, 2: totalSuppliedETH, 3: totalBorrowedETH },
-    ethPrice,
-  ] = await Promise.all([
+  const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
       .call({ gas: 1e18 }),
@@ -125,12 +109,6 @@ setInterval(async () => {
   console.time("assetData " + thisInterval);
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
-
-    const usdTVL = (totalSuppliedETH[i] / 1e18) * ethPrice;
-    const usdTVB = (totalBorrowedETH[i] / 1e18) * ethPrice;
-
-    poolTVL.set({ id }, usdTVL);
-    poolTVB.set({ id }, usdTVB);
 
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
