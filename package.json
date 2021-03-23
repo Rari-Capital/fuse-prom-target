@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node build/index.js",
+    "start": "node --max-old-space-size=3072 build/index.js",
     "watch": "nodemon -e ts --exec 'npm run start'",
     "start-pm2": "pm2 start ecosystem.config.js"
   },

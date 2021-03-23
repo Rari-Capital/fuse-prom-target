@@ -1,4 +1,6 @@
-import { Gauge, register } from "prom-client";
+import client, { Gauge, register } from "prom-client";
+client.collectDefaultMetrics();
+
 import express from "express";
 
 import Fuse from "./fuse.node.commonjs2.js";
