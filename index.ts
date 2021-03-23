@@ -3,6 +3,8 @@ import express from "express";
 
 import Fuse from "./fuse.node.commonjs2.js";
 
+import fetch from "node-fetch";
+
 // TODO: Change to use .env
 export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
 const fuse = new Fuse(alchemyURL);
@@ -22,6 +24,12 @@ let poolAssetsInterestRate = new Gauge({
   help: "Stores the interest rates of each asset in each pool.",
   // Side: borrow, supply
   labelNames: ["id", "symbol", "side"] as const,
+});
+
+let poolRSS = new Gauge({
+  name: "fuse_pool_rss",
+  help: "Stores the RSS score of each pool.",
+  labelNames: ["id"] as const,
 });
 
 let poolSuppliedAssetsAmount = new Gauge({
@@ -45,6 +53,12 @@ let poolSuppliedAssetsUSD = new Gauge({
 let poolBorrowedAssetsUSD = new Gauge({
   name: "fuse_pool_assets_borrow_usd",
   help: "Stores how much of each asset is borrowed in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolAssetsLiquidations = new Gauge({
+  name: "fuse_pool_assets_liquidations",
+  help: "Stores how many liquidations occur for each asset in each pool.",
   labelNames: ["id", "symbol"] as const,
 });
 
@@ -96,21 +110,32 @@ export interface FuseAsset {
 }
 
 const eventLoop = async () => {
-  const thisInterval = Date.now();
-
-  console.time("poolData " + thisInterval);
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
       .call({ gas: 1e18 }),
     fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number,
   ]);
-  console.timeEnd("poolData " + thisInterval);
 
-  console.time("assetData " + thisInterval);
-  console.time("userLeverage " + thisInterval);
+  console.log("Fetched base data...");
+
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
+
+    console.log("Fetching pool #", id);
+
+    fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(
+          "Fetching RSS for pool #",
+          id,
+          "which was last updated",
+          data.lastUpdated
+        );
+
+        poolRSS.set({ id }, data.totalScore);
+      });
 
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
@@ -119,7 +144,10 @@ const eventLoop = async () => {
         gas: 1e18,
       })
       .then((assets: FuseAsset[]) => {
+        // Do sync work
         assets.forEach((asset) => {
+          console.log("Fetching general data", asset.underlyingSymbol);
+
           // Amount
 
           poolSuppliedAssetsAmount.set(
@@ -155,12 +183,32 @@ const eventLoop = async () => {
             { id, symbol: asset.underlyingSymbol, side: "borrow" },
             (asset.borrowRatePerBlock * 2372500) / 1e16
           );
-        });
 
-        // If we've fetched all the asset data:
-        if (i === ids.length - 1) {
-          console.timeEnd("assetData " + thisInterval);
-        }
+          // Liquidations
+
+          const cToken = new fuse.web3.eth.Contract(
+            JSON.parse(
+              fuse.compoundContracts[
+                "contracts/CEtherDelegate.sol:CEtherDelegate"
+              ].abi
+            ),
+            asset.cToken
+          );
+
+          cToken
+            .getPastEvents("LiquidateBorrow", {
+              fromBlock: 0,
+              toBlock: "latest",
+            })
+            .then((events) => {
+              console.log("Fetching liquidation data", asset.underlyingSymbol);
+
+              poolAssetsLiquidations.set(
+                { id, symbol: asset.underlyingSymbol },
+                events.length
+              );
+            });
+        });
       });
 
     Promise.all([
@@ -168,6 +216,8 @@ const eventLoop = async () => {
       fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.2e18),
       fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.4e18),
     ]).then(([underwaterUsersArray, atRiskUsersArray, leveragedUsersArray]) => {
+      console.log("Fetching leverage data", id);
+
       userLeverage.set(
         { id, level: "liquidatable" },
         underwaterUsersArray.length
@@ -180,16 +230,12 @@ const eventLoop = async () => {
         { id, level: "leveraged" },
         removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
       );
-
-      if (i === ids.length - 1) {
-        console.timeEnd("userLeverage " + thisInterval);
-      }
     });
   }
 };
 
 // Event loop
-setInterval(eventLoop, 10000);
+setInterval(eventLoop, 15000);
 
 // Run instantly the first time.
 eventLoop();
