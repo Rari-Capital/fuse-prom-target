@@ -237,7 +237,7 @@ const eventLoop = async () => {
 };
 
 // Event loop
-setInterval(eventLoop, 15000);
+setInterval(eventLoop, 30000);
 
 // Run instantly the first time.
 eventLoop();
