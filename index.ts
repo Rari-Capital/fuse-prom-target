@@ -6,7 +6,7 @@ import Fuse from "./fuse.node.commonjs2.js";
 import fetch from "node-fetch";
 
 // TODO: Change to use .env
-export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/2Mt-6brbJvTA4w9cpiDtnbTo6qOoySnN`;
+export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`;
 const fuse = new Fuse(alchemyURL);
 
 const app = express();
