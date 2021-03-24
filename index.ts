@@ -19,8 +19,8 @@ const port = 1337;
 
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
-  help: "Stores how many users are at different levels of leverage",
-  // Levels: leveraged, at_risk, liquidatable
+  help: "Stores how many users are at different levels of leverage.",
+  // Levels: at_risk, liquidatable
   labelNames: ["id", "level"] as const,
 });
 
@@ -116,14 +116,25 @@ export interface FuseAsset {
 
 let runs = 0;
 function runsEndsIn(num: number) {
-  // We want all tasks to run on 0.
-  if (runs === 0) {
+  // We want all tasks to run on the first run.
+  if (runs === 1) {
+    console.log("It's our first run, forcing a true.");
     return true;
   }
 
-  return runs % 10 === num;
+  const lastDigit = runs % 10;
+
+  console.log(
+    "Run ends with:",
+    lastDigit,
+    " and this part will only run if it ends with",
+    num
+  );
+  return lastDigit === num;
 }
 async function eventLoop() {
+  runs++;
+
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
@@ -232,30 +243,21 @@ async function eventLoop() {
     if (runsEndsIn(5)) {
       Promise.all([
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.2e18),
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.4e18),
-      ]).then(
-        ([underwaterUsersArray, atRiskUsersArray, leveragedUsersArray]) => {
-          console.log("Fetching leverage data", id);
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
+      ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
+        console.log("Fetching leverage data", id);
 
-          userLeverage.set(
-            { id, level: "liquidatable" },
-            underwaterUsersArray.length
-          );
-          userLeverage.set(
-            { id, level: "at_risk" },
-            removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-          );
-          userLeverage.set(
-            { id, level: "leveraged" },
-            removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
-          );
-        }
-      );
+        userLeverage.set(
+          { id, level: "liquidatable" },
+          underwaterUsersArray.length
+        );
+        userLeverage.set(
+          { id, level: "at_risk" },
+          removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+        );
+      });
     }
   }
-
-  runs++;
 }
 
 // Event loop (every 2 mins)
