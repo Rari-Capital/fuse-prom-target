@@ -159,7 +159,7 @@ async function eventLoop() {
       })
       .then((assets: FuseAsset[]) => {
         assets.forEach((asset) => {
-          console.log("Fetching general data", asset.underlyingSymbol);
+          console.log("Updating general data", asset.underlyingSymbol);
 
           // Amount
 
