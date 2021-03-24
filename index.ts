@@ -7,9 +7,12 @@ import Fuse from "./fuse.node.commonjs2.js";
 
 import fetch from "node-fetch";
 
-// TODO: Change to use .env
-export const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`;
-const fuse = new Fuse(alchemyURL);
+const infuraURL = `https://mainnet.infura.io/v3/834349d34934494f80797f2f551cb12e`;
+const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`; 
+
+const fuse = new Fuse(infuraURL);
+// @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
+fuse.contracts.FusePoolLens.setProvider(alchemyURL);
 
 const app = express();
 const port = 1337;
@@ -146,7 +149,6 @@ async function eventLoop() {
         gas: 1e18,
       })
       .then((assets: FuseAsset[]) => {
-        // Do sync work
         assets.forEach((asset) => {
           console.log("Fetching general data", asset.underlyingSymbol);
 
