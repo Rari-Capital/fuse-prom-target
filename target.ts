@@ -2,10 +2,9 @@ import client, { Gauge, register } from "prom-client";
 client.collectDefaultMetrics();
 
 import express from "express";
+import fetch from "node-fetch";
 
 import Fuse from "./fuse.node.commonjs2.js";
-
-import fetch from "node-fetch";
 
 const infuraURL = `https://mainnet.infura.io/v3/834349d34934494f80797f2f551cb12e`;
 const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`;
@@ -13,9 +12,6 @@ const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlN
 const fuse = new Fuse(infuraURL);
 // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
 fuse.contracts.FusePoolLens.setProvider(alchemyURL);
-
-const app = express();
-const port = 1337;
 
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
@@ -132,6 +128,7 @@ function runsEndsIn(num: number) {
   );
   return lastDigit === num;
 }
+
 async function eventLoop() {
   runs++;
 
@@ -266,11 +263,14 @@ setInterval(eventLoop, 120_000);
 // Run instantly the first time.
 eventLoop();
 
+const app = express();
+const port = 1336;
+
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 });
 
 app.listen(port, () => {
-  console.log(`server started at http://localhost:${port}/metrics`);
+  console.log(`Target server started at http://localhost:${port}/metrics`);
 });
