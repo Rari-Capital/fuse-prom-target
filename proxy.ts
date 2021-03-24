@@ -7,23 +7,18 @@ const port = 1337;
 let cache: string;
 
 async function fetchAndCacheWithFallback() {
+  console.time("Target Fetch");
   try {
-    console.time("Target Fetch");
-    const text = (await fetch("http://localhost:1336/metrics").then((res) =>
+    cache = (await fetch("http://localhost:1336/metrics").then((res) =>
       res.text()
     )) as string;
-    console.timeEnd("Target Fetch");
-
-    cache = text;
-
-    return text;
   } catch (e) {
-    console.timeEnd("Target Fetch");
     console.log(e);
     console.log("\n\n Fetch to target failed, using cache! \n\n");
-
-    return cache;
   }
+  console.timeEnd("Target Fetch");
+
+  return cache;
 }
 
 app.get("/metrics", async (req, res) => {
