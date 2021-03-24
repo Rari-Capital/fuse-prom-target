@@ -111,7 +111,7 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-const eventLoop = async () => {
+async function eventLoop() {
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
@@ -234,7 +234,7 @@ const eventLoop = async () => {
       );
     });
   }
-};
+}
 
 // Event loop (every 2 mins)
 setInterval(eventLoop, 120_000);
