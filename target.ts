@@ -195,14 +195,30 @@ async function eventLoop() {
 
           // Interst Rates
 
+          const supplyAPY =
+            (Math.pow(
+              (asset.supplyRatePerBlock / 1e18) * (4 * 60 * 24) + 1,
+              365
+            ) -
+              1) *
+            100;
+
+          const borrowAPY =
+            (Math.pow(
+              (asset.borrowRatePerBlock / 1e18) * (4 * 60 * 24) + 1,
+              365
+            ) -
+              1) *
+            100;
+
           poolAssetsInterestRate.set(
             { id, symbol: asset.underlyingSymbol, side: "supply" },
-            (asset.supplyRatePerBlock * 2372500) / 1e16
+            supplyAPY
           );
 
           poolAssetsInterestRate.set(
             { id, symbol: asset.underlyingSymbol, side: "borrow" },
-            (asset.borrowRatePerBlock * 2372500) / 1e16
+            borrowAPY
           );
 
           // Liquidations (Happens every 8 runs)
