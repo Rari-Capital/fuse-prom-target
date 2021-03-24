@@ -8,7 +8,7 @@ import Fuse from "./fuse.node.commonjs2.js";
 import fetch from "node-fetch";
 
 const infuraURL = `https://mainnet.infura.io/v3/834349d34934494f80797f2f551cb12e`;
-const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`; 
+const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`;
 
 const fuse = new Fuse(infuraURL);
 // @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
@@ -114,6 +114,15 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
+let runs = 0;
+function runsEndsIn(num: number) {
+  // We want all tasks to run on 0.
+  if (runs === 0) {
+    return true;
+  }
+
+  return runs % 10 === num;
+}
 async function eventLoop() {
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
@@ -188,54 +197,65 @@ async function eventLoop() {
             (asset.borrowRatePerBlock * 2372500) / 1e16
           );
 
-          // Liquidations
+          // Liquidations (Happens every 8 runs)
+          if (runsEndsIn(8)) {
+            const cToken = new fuse.web3.eth.Contract(
+              JSON.parse(
+                fuse.compoundContracts[
+                  "contracts/CEtherDelegate.sol:CEtherDelegate"
+                ].abi
+              ),
+              asset.cToken
+            );
 
-          const cToken = new fuse.web3.eth.Contract(
-            JSON.parse(
-              fuse.compoundContracts[
-                "contracts/CEtherDelegate.sol:CEtherDelegate"
-              ].abi
-            ),
-            asset.cToken
-          );
+            cToken
+              .getPastEvents("LiquidateBorrow", {
+                fromBlock: 0,
+                toBlock: "latest",
+              })
+              .then((events) => {
+                console.log(
+                  "Fetching liquidation data",
+                  asset.underlyingSymbol
+                );
 
-          cToken
-            .getPastEvents("LiquidateBorrow", {
-              fromBlock: 0,
-              toBlock: "latest",
-            })
-            .then((events) => {
-              console.log("Fetching liquidation data", asset.underlyingSymbol);
-
-              poolAssetsLiquidations.set(
-                { id, symbol: asset.underlyingSymbol },
-                events.length
-              );
-            });
+                poolAssetsLiquidations.set(
+                  { id, symbol: asset.underlyingSymbol },
+                  events.length
+                );
+              });
+          }
         });
       });
 
-    Promise.all([
-      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.2e18),
-      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.4e18),
-    ]).then(([underwaterUsersArray, atRiskUsersArray, leveragedUsersArray]) => {
-      console.log("Fetching leverage data", id);
+    // User health (Happens every 5 runs)
+    if (runsEndsIn(5)) {
+      Promise.all([
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.2e18),
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.4e18),
+      ]).then(
+        ([underwaterUsersArray, atRiskUsersArray, leveragedUsersArray]) => {
+          console.log("Fetching leverage data", id);
 
-      userLeverage.set(
-        { id, level: "liquidatable" },
-        underwaterUsersArray.length
+          userLeverage.set(
+            { id, level: "liquidatable" },
+            underwaterUsersArray.length
+          );
+          userLeverage.set(
+            { id, level: "at_risk" },
+            removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+          );
+          userLeverage.set(
+            { id, level: "leveraged" },
+            removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
+          );
+        }
       );
-      userLeverage.set(
-        { id, level: "at_risk" },
-        removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-      );
-      userLeverage.set(
-        { id, level: "leveraged" },
-        removeDoubleCounts(leveragedUsersArray, atRiskUsersArray).length
-      );
-    });
+    }
   }
+
+  runs++;
 }
 
 // Event loop (every 2 mins)
