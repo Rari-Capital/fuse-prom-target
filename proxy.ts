@@ -18,6 +18,7 @@ async function fetchAndCacheWithFallback() {
 
     return text;
   } catch (e) {
+    console.timeEnd("Target Fetch");
     console.log(e);
     console.log("\n\n Fetch to target failed, using cache! \n\n");
 
