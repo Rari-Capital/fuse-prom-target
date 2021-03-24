@@ -236,8 +236,8 @@ const eventLoop = async () => {
   }
 };
 
-// Event loop
-setInterval(eventLoop, 30000);
+// Event loop (every 2 mins)
+setInterval(eventLoop, 120_000);
 
 // Run instantly the first time.
 eventLoop();
