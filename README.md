@@ -15,3 +15,5 @@ npm run start-pm2
 
 - If you modify `target.ts` (like to add new metrics), simply run `pm2 restart fuse-prom-target`. 
   - This will restart the target, but not the proxy which will cache the last returned metrics and serve them while your target restarts.
+
+<img width="1611" alt="Screen Shot 2021-03-24 at 5 08 39 PM" src="https://user-images.githubusercontent.com/26209401/112399514-95858900-8cc3-11eb-8c78-8e5b62f1d300.png">
