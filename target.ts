@@ -3,6 +3,7 @@ client.collectDefaultMetrics();
 
 import express from "express";
 import fetch from "node-fetch";
+import chalk from "chalk";
 
 import Fuse from "./fuse.node.commonjs2.js";
 
@@ -105,28 +106,45 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-let runs = 0;
-function runsEndsIn(num: number) {
-  // We want all tasks to run on the first run.
-  if (runs === 1) {
-    console.log("It's our first run, forcing a true.");
+type Task = "rss" | "liquidations" | "user_leverage";
+
+let lastRun: { [key in Task]: number } = {
+  rss: 0,
+  liquidations: 0,
+  user_leverage: 0,
+};
+
+function runEvery(key: Task, seconds: number) {
+  const ms = seconds * 1000;
+
+  const now = Date.now();
+
+  const msPassed = Date.now() - lastRun[key];
+
+  if (msPassed >= ms) {
+    setTimeout(() => {
+      lastRun[key] = now;
+    }, 1000);
+
+    console.log(
+      chalk.green(
+        `Running ${key} now! It will be ${seconds} seconds until the next run.`
+      )
+    );
+
     return true;
+  } else {
+    console.log(
+      chalk.yellow(
+        `Skipping ${key}. There are ${((ms - msPassed) / 1000).toFixed(
+          2
+        )} seconds left until the next run.`
+      )
+    );
   }
-
-  const lastDigit = runs % 10;
-
-  console.log(
-    "Run ends with:",
-    lastDigit,
-    " and this part will only run if it ends with",
-    num
-  );
-  return lastDigit === num;
 }
 
 async function eventLoop() {
-  runs++;
-
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
@@ -141,8 +159,7 @@ async function eventLoop() {
 
     console.log("Fetching pool #", id);
 
-    // RSS (Happens every 15 minutes)
-    if (runsEndsIn(60)) {
+    if (runEvery("rss", 600 /* 10 mins */)) {
       fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
         .then((res) => res.json())
         .then((data) => {
@@ -219,8 +236,7 @@ async function eventLoop() {
             borrowAPY
           );
 
-          // Liquidations (Happens every 45 seconds)
-          if (runsEndsIn(3)) {
+          if (runEvery("liquidations", 60 /* 1 minute */)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
@@ -250,22 +266,26 @@ async function eventLoop() {
         });
       });
 
-    Promise.all([
-      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
-    ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
-      console.log("Fetching leverage data", id);
+    if (runEvery("user_leverage", 30 /* 30 secs */)) {
+      Promise.all([
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
+      ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
+        console.log("Fetching leverage data", id);
 
-      userLeverage.set(
-        { id, level: "liquidatable" },
-        underwaterUsersArray.length
-      );
-      userLeverage.set(
-        { id, level: "at_risk" },
-        removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-      );
-    });
+        userLeverage.set(
+          { id, level: "liquidatable" },
+          underwaterUsersArray.length
+        );
+        userLeverage.set(
+          { id, level: "at_risk" },
+          removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+        );
+      });
+    }
   }
+
+  setTimeout(() => console.log("\n\n\n\n\n\n\n\n\n"), 2_000);
 }
 
 // Event loop (every 15 secs)
