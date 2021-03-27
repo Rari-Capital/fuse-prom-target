@@ -250,24 +250,21 @@ async function eventLoop() {
         });
       });
 
-    // User health (Happens every 30 seconds)
-    if (runsEndsIn(2)) {
-      Promise.all([
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
-      ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
-        console.log("Fetching leverage data", id);
+    Promise.all([
+      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
+      fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
+    ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
+      console.log("Fetching leverage data", id);
 
-        userLeverage.set(
-          { id, level: "liquidatable" },
-          underwaterUsersArray.length
-        );
-        userLeverage.set(
-          { id, level: "at_risk" },
-          removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-        );
-      });
-    }
+      userLeverage.set(
+        { id, level: "liquidatable" },
+        underwaterUsersArray.length
+      );
+      userLeverage.set(
+        { id, level: "at_risk" },
+        removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
+      );
+    });
   }
 }
 
