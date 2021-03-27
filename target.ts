@@ -6,12 +6,7 @@ import fetch from "node-fetch";
 
 import Fuse from "./fuse.node.commonjs2.js";
 
-const infuraURL = `https://mainnet.infura.io/v3/834349d34934494f80797f2f551cb12e`;
-const alchemyURL = `https://eth-mainnet.alchemyapi.io/v2/oAvEoLnipU2C4c8WrfOaXlNntcIMT3FV`;
-
-const fuse = new Fuse(infuraURL);
-// @ts-ignore We have to do this to avoid Infura ratelimits on our large calls.
-fuse.contracts.FusePoolLens.setProvider(alchemyURL);
+const fuse = new Fuse("https://turbogeth.crows.sh");
 
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
@@ -146,18 +141,21 @@ async function eventLoop() {
 
     console.log("Fetching pool #", id);
 
-    fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(
-          "Fetching RSS for pool #",
-          id,
-          "which was last updated",
-          data.lastUpdated
-        );
+    // RSS (Happens every 15 minutes)
+    if (runsEndsIn(60)) {
+      fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(
+            "Fetching RSS for pool #",
+            id,
+            "which was last updated",
+            data.lastUpdated
+          );
 
-        poolRSS.set({ id }, data.totalScore);
-      });
+          poolRSS.set({ id }, data.totalScore);
+        });
+    }
 
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
@@ -221,8 +219,8 @@ async function eventLoop() {
             borrowAPY
           );
 
-          // Liquidations (Happens every 8 runs)
-          if (runsEndsIn(8)) {
+          // Liquidations (Happens every 45 seconds)
+          if (runsEndsIn(3)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
@@ -234,7 +232,7 @@ async function eventLoop() {
 
             cToken
               .getPastEvents("LiquidateBorrow", {
-                fromBlock: 0,
+                fromBlock: "12060000",
                 toBlock: "latest",
               })
               .then((events) => {
@@ -252,8 +250,8 @@ async function eventLoop() {
         });
       });
 
-    // User health (Happens every 5 runs)
-    if (runsEndsIn(5)) {
+    // User health (Happens every 30 seconds)
+    if (runsEndsIn(2)) {
       Promise.all([
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
@@ -273,8 +271,8 @@ async function eventLoop() {
   }
 }
 
-// Event loop (every 2 mins)
-setInterval(eventLoop, 120_000);
+// Event loop (every 15 secs)
+setInterval(eventLoop, 15_000);
 
 // Run instantly the first time.
 eventLoop();
