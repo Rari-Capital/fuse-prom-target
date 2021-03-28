@@ -106,11 +106,11 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-type Task = "rss" | "liquidations" | "user_leverage";
+type Task = "rss" | "events" | "user_leverage";
 
 let lastRun: { [key in Task]: number } = {
   rss: 0,
-  liquidations: 0,
+  events: 0,
   user_leverage: 0,
 };
 
@@ -236,7 +236,7 @@ async function eventLoop() {
             borrowAPY
           );
 
-          if (runEvery("liquidations", 60 /* 1 minute */)) {
+          if (runEvery("events", 60 /* 1 minute */)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
