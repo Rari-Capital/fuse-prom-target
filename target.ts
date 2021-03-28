@@ -53,10 +53,10 @@ let poolBorrowedAssetsUSD = new Gauge({
   labelNames: ["id", "symbol"] as const,
 });
 
-let poolAssetsLiquidations = new Gauge({
-  name: "fuse_pool_assets_liquidations",
-  help: "Stores how many liquidations occur for each asset in each pool.",
-  labelNames: ["id", "symbol"] as const,
+let poolAssetsEvents = new Gauge({
+  name: "fuse_pool_assets_events",
+  help: "Stores each type of event that occurs on each asset in each pool.",
+  labelNames: ["id", "symbol", "event"] as const,
 });
 
 function fetchUsersWithHealth(
@@ -247,20 +247,31 @@ async function eventLoop() {
             );
 
             cToken
-              .getPastEvents("LiquidateBorrow", {
-                fromBlock: "12060000",
+              .getPastEvents("allEvents", {
+                fromBlock: 12060000,
                 toBlock: "latest",
               })
               .then((events) => {
-                console.log(
-                  "Fetching liquidation data",
-                  asset.underlyingSymbol
-                );
+                let eventCounts: { [key: string]: number } = {};
 
-                poolAssetsLiquidations.set(
-                  { id, symbol: asset.underlyingSymbol },
-                  events.length
-                );
+                events.forEach((event) => {
+                  if (event.event === undefined) {
+                    return;
+                  }
+
+                  if (eventCounts[event.event] === undefined) {
+                    eventCounts[event.event] = 1;
+                  } else {
+                    eventCounts[event.event] += 1;
+                  }
+                });
+
+                Object.keys(eventCounts).forEach((eventName) => {
+                  poolAssetsEvents.set(
+                    { id, symbol: asset.underlyingSymbol, event: eventName },
+                    eventCounts[eventName]
+                  );
+                });
               });
           }
         });
@@ -285,7 +296,7 @@ async function eventLoop() {
     }
   }
 
-  setTimeout(() => console.log("\n\n\n\n\n\n\n\n\n"), 2_000);
+  setTimeout(() => console.log("\n\n\n\n\n\n\n\n\n"), 2_500);
 }
 
 // Event loop (every 15 secs)
