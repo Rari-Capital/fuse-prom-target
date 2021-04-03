@@ -59,6 +59,30 @@ let poolAssetsEvents = new Gauge({
   labelNames: ["id", "symbol", "event"] as const,
 });
 
+let poolAssetsReservesAmount = new Gauge({
+  name: "fuse_pool_assets_reserves_amount",
+  help: "Stores how much of each asset is in reserves in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolAssetsReservesUSD = new Gauge({
+  name: "fuse_pool_assets_reserves_usd",
+  help: "Stores how much of each asset is in reserves in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolAssetsFeesAmount = new Gauge({
+  name: "fuse_pool_assets_fees_amount",
+  help: "Stores how much of each asset has been taken as fees in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
+let poolAssetsFeesUSD = new Gauge({
+  name: "fuse_pool_assets_fees_usd",
+  help: "Stores how much of each asset has been taken as fees in each pool.",
+  labelNames: ["id", "symbol"] as const,
+});
+
 function fetchUsersWithHealth(
   fuse: any,
   comptroller: string,
@@ -106,12 +130,13 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-type Task = "rss" | "events" | "user_leverage";
+type Task = "rss" | "events" | "user_leverage" | "reserves/fees";
 
 let lastRun: { [key in Task]: number } = {
   rss: 0,
   events: 0,
   user_leverage: 0,
+  "reserves/fees": 0,
 };
 
 function runEvery(key: Task, seconds: number) {
@@ -235,6 +260,47 @@ async function eventLoop() {
             { id, symbol: asset.underlyingSymbol, side: "borrow" },
             borrowAPY
           );
+
+          if (runEvery("reserves/fees", 600 /* 10 minutes */)) {
+            const cToken = new fuse.web3.eth.Contract(
+              JSON.parse(
+                fuse.compoundContracts[
+                  "contracts/CEtherDelegate.sol:CEtherDelegate"
+                ].abi
+              ),
+              asset.cToken
+            );
+
+            cToken.methods
+              .totalReserves()
+              .call()
+              .then((reserves) => {
+                poolAssetsReservesAmount.set(
+                  { symbol: asset.underlyingSymbol, id },
+                  reserves / 10 ** asset.underlyingDecimals
+                );
+
+                poolAssetsReservesUSD.set(
+                  { symbol: asset.underlyingSymbol, id },
+                  ((reserves * asset.underlyingPrice) / 1e36) * ethPrice
+                );
+              });
+
+            cToken.methods
+              .totalFuseFees()
+              .call()
+              .then((fuseFees) => {
+                poolAssetsFeesAmount.set(
+                  { symbol: asset.underlyingSymbol, id },
+                  fuseFees / 10 ** asset.underlyingDecimals
+                );
+
+                poolAssetsFeesUSD.set(
+                  { symbol: asset.underlyingSymbol, id },
+                  ((fuseFees * asset.underlyingPrice) / 1e36) * ethPrice
+                );
+              });
+          }
 
           if (runEvery("events", 60 /* 1 minute */)) {
             const cToken = new fuse.web3.eth.Contract(
