@@ -10,7 +10,7 @@ let lastServedFromCache: number = 0;
 async function fetchAndCacheWithFallback() {
   console.time("Target Fetch");
   try {
-    const metrics = (await fetch("http://localhost:1336/metrics").then((res) =>
+    const metrics = (await fetch("http://localhost:1336/metrics").then(res =>
       res.text()
     )) as string;
 
@@ -24,7 +24,7 @@ async function fetchAndCacheWithFallback() {
     }
   } catch (e) {
     console.log(e);
-    console.log("\n\n dFetch to target failed, using cache! \n\n");
+    console.log("\n\n Fetch to target failed, using cache! \n\n");
 
     lastServedFromCache = Date.now();
   }
