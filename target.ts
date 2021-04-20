@@ -104,7 +104,7 @@ let stakedALCXAmount = new Gauge({
 });
 
 let stakedALCXUnclaimedAmount = new Gauge({
-  name: "fuse_staked_alcx_unclaimed_amounnt",
+  name: "fuse_staked_alcx_unclaimed_amount",
   help: "Stores how much protocol controlled ALCX is claimable from staking."
 });
 
