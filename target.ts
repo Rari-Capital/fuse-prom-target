@@ -8,6 +8,11 @@ import chalk from "chalk";
 import Fuse from "./fuse.node.commonjs2.js";
 
 const fuse = new Fuse("https://turbogeth.crows.sh");
+const alcxStakingAccount = "0x5ea4a9a7592683bf0bc187d6da706c6c4770976f";
+const alcxStakingContract = new fuse.web3.eth.Contract(
+  require("../abis/StakingPools.json"),
+  "0xab8e74017a8cc7c15ffccd726603790d26d7deca"
+);
 
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
@@ -83,6 +88,26 @@ let poolAssetsFeesUSD = new Gauge({
   labelNames: ["id", "symbol"] as const
 });
 
+let stakedALCXUSD = new Gauge({
+  name: "fuse_staked_alcx_usd",
+  help: "Stores how much protocol controlled ALCX is currently being staked."
+});
+
+let stakedALCXUnclaimedUSD = new Gauge({
+  name: "fuse_staked_alcx_unclaimed_usd",
+  help: "Stores how much protocol controlled ALCX is claimable from staking."
+});
+
+let stakedALCXAmount = new Gauge({
+  name: "fuse_staked_alcx_amount",
+  help: "Stores how much protocol controlled ALCX is currently being staked."
+});
+
+let stakedALCXUnclaimedAmount = new Gauge({
+  name: "fuse_staked_alcx_unclaimed_amounnt",
+  help: "Stores how much protocol controlled ALCX is claimable from staking."
+});
+
 function fetchUsersWithHealth(
   fuse: any,
   comptroller: string,
@@ -135,13 +160,19 @@ export interface FuseAsset {
   totalSupply: number;
 }
 
-type Task = "rss" | "events" | "user_leverage" | "reserves/fees";
+type Task =
+  | "rss"
+  | "events"
+  | "user_leverage"
+  | "reserves/fees"
+  | "staked_alcx";
 
 let lastRun: { [key in Task]: number } = {
   rss: 0,
   events: 0,
   user_leverage: 0,
-  "reserves/fees": 0
+  "reserves/fees": 0,
+  staked_alcx: 0
 };
 
 function runEvery(key: Task, seconds: number) {
@@ -343,6 +374,33 @@ async function eventLoop() {
                     eventCounts[eventName]
                   );
                 });
+              });
+          }
+
+          // Staked ALCX tracking
+          if (
+            asset.underlyingToken.toLowerCase() ===
+              "0xdbdb4d16eda451d0503b854cf79d55697f90c8df".toLowerCase() &&
+            runEvery("staked_alcx", 60 /* 1 minute */)
+          ) {
+            alcxStakingContract.methods
+              .getStakeTotalDeposited(alcxStakingAccount, "1")
+              .call()
+              .then(staked => {
+                stakedALCXUSD.set(
+                  ((staked * asset.underlyingPrice) / 1e36) * ethPrice
+                );
+                stakedALCXAmount.set(staked / 1e18);
+              });
+
+            alcxStakingContract.methods
+              .getStakeTotalUnclaimed(alcxStakingAccount, "1")
+              .call()
+              .then(unclaimed => {
+                stakedALCXUnclaimedUSD.set(
+                  ((unclaimed * asset.underlyingPrice) / 1e36) * ethPrice
+                );
+                stakedALCXUnclaimedAmount.set(unclaimed / 1e18);
               });
           }
         });
