@@ -13,74 +13,74 @@ let userLeverage = new Gauge({
   name: "fuse_userLeverage",
   help: "Stores how many users are at different levels of leverage.",
   // Levels: at_risk, liquidatable
-  labelNames: ["id", "level"] as const,
+  labelNames: ["id", "level"] as const
 });
 
 let poolAssetsInterestRate = new Gauge({
   name: "fuse_pool_assets_interest_rate",
   help: "Stores the interest rates of each asset in each pool.",
   // Side: borrow, supply
-  labelNames: ["id", "symbol", "side"] as const,
+  labelNames: ["id", "symbol", "side"] as const
 });
 
 let poolRSS = new Gauge({
   name: "fuse_pool_rss",
   help: "Stores the RSS score of each pool.",
-  labelNames: ["id"] as const,
+  labelNames: ["id"] as const
 });
 
 let poolSuppliedAssetsAmount = new Gauge({
   name: "fuse_pool_assets_supply_amount",
   help: "Stores how much of each asset is supplied in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolBorrowedAssetsAmount = new Gauge({
   name: "fuse_pool_assets_borrow_amount",
   help: "Stores how much of each asset is borrowed in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolSuppliedAssetsUSD = new Gauge({
   name: "fuse_pool_assets_supply_usd",
   help: "Stores how much of each asset is supplied in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolBorrowedAssetsUSD = new Gauge({
   name: "fuse_pool_assets_borrow_usd",
   help: "Stores how much of each asset is borrowed in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolAssetsEvents = new Gauge({
   name: "fuse_pool_assets_events",
   help: "Stores each type of event that occurs on each asset in each pool.",
-  labelNames: ["id", "symbol", "event"] as const,
+  labelNames: ["id", "symbol", "event"] as const
 });
 
 let poolAssetsReservesAmount = new Gauge({
   name: "fuse_pool_assets_reserves_amount",
   help: "Stores how much of each asset is in reserves in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolAssetsReservesUSD = new Gauge({
   name: "fuse_pool_assets_reserves_usd",
   help: "Stores how much of each asset is in reserves in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolAssetsFeesAmount = new Gauge({
   name: "fuse_pool_assets_fees_amount",
   help: "Stores how much of each asset has been taken as fees in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolAssetsFeesUSD = new Gauge({
   name: "fuse_pool_assets_fees_usd",
   help: "Stores how much of each asset has been taken as fees in each pool.",
-  labelNames: ["id", "symbol"] as const,
+  labelNames: ["id", "symbol"] as const
 });
 
 function fetchUsersWithHealth(
@@ -91,8 +91,13 @@ function fetchUsersWithHealth(
   return fuse.contracts.FusePoolLens.methods
     .getPoolUsersWithData(comptroller, fuse.web3.utils.toBN(maxHealth))
     .call()
-    .then((result: { account: string }[][]) =>
-      result[0].map((data) => data.account)
+    .then((result: { account: string; totalBorrow: number }[][]) =>
+      result[0]
+        .filter(user => {
+          // Filter out users that are borrowing less than 0.01 ETH
+          return user.totalBorrow / 1e18 > 0.01;
+        })
+        .map(data => data.account)
     ) as Promise<string[]>;
 }
 
@@ -136,7 +141,7 @@ let lastRun: { [key in Task]: number } = {
   rss: 0,
   events: 0,
   user_leverage: 0,
-  "reserves/fees": 0,
+  "reserves/fees": 0
 };
 
 function runEvery(key: Task, seconds: number) {
@@ -174,7 +179,7 @@ async function eventLoop() {
     fuse.contracts.FusePoolLens.methods
       .getPublicPoolsWithData()
       .call({ gas: 1e18 }),
-    fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number,
+    fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number
   ]);
 
   console.log("Fetched base data...");
@@ -186,8 +191,8 @@ async function eventLoop() {
 
     if (runEvery("rss", 600 /* 10 mins */)) {
       fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           console.log(
             "Fetching RSS for pool #",
             id,
@@ -203,10 +208,10 @@ async function eventLoop() {
       .getPoolAssetsWithData(fusePools[i].comptroller)
       .call({
         from: "0x0000000000000000000000000000000000000000",
-        gas: 1e18,
+        gas: 1e18
       })
       .then((assets: FuseAsset[]) => {
-        assets.forEach((asset) => {
+        assets.forEach(asset => {
           console.log("Updating general data", asset.underlyingSymbol);
 
           // Amount
@@ -274,7 +279,7 @@ async function eventLoop() {
             cToken.methods
               .totalReserves()
               .call()
-              .then((reserves) => {
+              .then(reserves => {
                 poolAssetsReservesAmount.set(
                   { symbol: asset.underlyingSymbol, id },
                   reserves / 10 ** asset.underlyingDecimals
@@ -289,7 +294,7 @@ async function eventLoop() {
             cToken.methods
               .totalFuseFees()
               .call()
-              .then((fuseFees) => {
+              .then(fuseFees => {
                 poolAssetsFeesAmount.set(
                   { symbol: asset.underlyingSymbol, id },
                   fuseFees / 10 ** asset.underlyingDecimals
@@ -315,12 +320,12 @@ async function eventLoop() {
             cToken
               .getPastEvents("allEvents", {
                 fromBlock: 12060000,
-                toBlock: "latest",
+                toBlock: "latest"
               })
-              .then((events) => {
+              .then(events => {
                 let eventCounts: { [key: string]: number } = {};
 
-                events.forEach((event) => {
+                events.forEach(event => {
                   if (event.event === undefined) {
                     return;
                   }
@@ -332,7 +337,7 @@ async function eventLoop() {
                   }
                 });
 
-                Object.keys(eventCounts).forEach((eventName) => {
+                Object.keys(eventCounts).forEach(eventName => {
                   poolAssetsEvents.set(
                     { id, symbol: asset.underlyingSymbol, event: eventName },
                     eventCounts[eventName]
@@ -346,7 +351,7 @@ async function eventLoop() {
     if (runEvery("user_leverage", 30 /* 30 secs */)) {
       Promise.all([
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18),
+        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18)
       ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
         console.log("Fetching leverage data", id);
 
