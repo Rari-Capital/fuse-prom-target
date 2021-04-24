@@ -119,8 +119,8 @@ function fetchUsersWithHealth(
     .then((result: { account: string; totalBorrow: number }[][]) =>
       result[0]
         .filter(user => {
-          // Filter out users that are borrowing less than 0.01 ETH
-          return user.totalBorrow / 1e18 > 0.01;
+          // Filter out users that are borrowing less than 0.1 ETH
+          return user.totalBorrow / 1e18 > 0.1;
         })
         .map(data => data.account)
     ) as Promise<string[]>;
