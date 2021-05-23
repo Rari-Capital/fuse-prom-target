@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 12,
-  "iteration": 1616631084724,
+  "iteration": 1621813190067,
   "links": [],
   "panels": [
     {
@@ -26,7 +26,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -63,7 +62,9 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -71,10 +72,11 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
-          "expr": "sum(fuse_pool_assets_borrow_usd{symbol=\"$symbol\"}) / sum(fuse_pool_assets_supply_usd{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_borrow_usd{symbol=\"$symbol\", id=~\"$id\"}) / sum(fuse_pool_assets_supply_usd{symbol=\"$symbol\", id=~\"$id\"})",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -96,7 +98,6 @@
       "datasource": "Rari Hosted Prom",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "unit": "short"
         },
         "overrides": []
@@ -116,7 +117,7 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": true,
+        "show": false,
         "total": false,
         "values": false
       },
@@ -127,7 +128,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -137,14 +138,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "sum(fuse_pool_assets_supply_amount{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_supply_amount{symbol=\"$symbol\", id=~\"$id\"})",
           "interval": "",
           "legendFormat": "TVL",
           "queryType": "randomWalk",
           "refId": "A"
         },
         {
-          "expr": "sum(fuse_pool_assets_borrow_amount{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_borrow_amount{symbol=\"$symbol\", id=~\"$id\"})",
           "hide": false,
           "interval": "",
           "legendFormat": "TVB",
@@ -205,7 +208,6 @@
       "datasource": "Rari Hosted Prom",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "unit": "currencyUSD"
         },
         "overrides": []
@@ -223,6 +225,7 @@
       "legend": {
         "avg": false,
         "current": false,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": true,
@@ -236,7 +239,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -246,14 +249,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "fuse_pool_assets_supply_usd{symbol=\"$symbol\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_supply_usd{symbol=\"$symbol\", id=~\"$id\"}",
           "interval": "",
           "legendFormat": "Pool #{{id}} TVL",
           "queryType": "randomWalk",
           "refId": "A"
         },
         {
-          "expr": "fuse_pool_assets_borrow_usd{symbol=\"$symbol\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_borrow_usd{symbol=\"$symbol\", id=~\"$id\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Pool #{{id}} TVB",
@@ -314,7 +319,6 @@
       "datasource": "Rari Hosted Prom",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "unit": "short"
         },
         "overrides": []
@@ -328,10 +332,11 @@
         "y": 0
       },
       "hiddenSeries": false,
-      "id": 15,
+      "id": 18,
       "legend": {
         "avg": false,
         "current": false,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": true,
@@ -345,7 +350,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -355,14 +360,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "fuse_pool_assets_supply_amount{symbol=\"$symbol\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_supply_amount{symbol=\"$symbol\", id=~\"$id\"}",
           "interval": "",
           "legendFormat": "Pool #{{id}} TVL",
           "queryType": "randomWalk",
           "refId": "A"
         },
         {
-          "expr": "fuse_pool_assets_borrow_amount{symbol=\"$symbol\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_borrow_amount{symbol=\"$symbol\", id=~\"$id\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Pool #{{id}} TVB",
@@ -420,7 +427,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -436,7 +442,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 4,
         "x": 0,
         "y": 5
@@ -448,17 +454,20 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
-          "expr": "sum(fuse_pool_assets_supply_usd{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_supply_usd{symbol=\"$symbol\", id=~\"$id\"})",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -471,6 +480,65 @@
       "type": "stat"
     },
     {
+      "datasource": "Rari Hosted Prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 10
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_borrow_usd{symbol=\"$symbol\", id=~\"$id\"})",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Asset USD Total Borrowed",
+      "type": "stat"
+    },
+    {
       "aliasColors": {
         "TVB": "dark-red"
       },
@@ -480,7 +548,126 @@
       "datasource": "Rari Hosted Prom",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 5,
+      "gridPos": {
+        "h": 12,
+        "w": 8,
+        "x": 4,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 15,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (event) (fuse_pool_assets_events{symbol=\"$symbol\", id=~\"$id\"})",
+          "interval": "",
+          "legendFormat": "{{event}}",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Events Per Pool",
+      "tooltip": {
+        "shared": false,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Time",
+                "Borrow",
+                "LiquidateBorrow",
+                "Mint",
+                "Redeem",
+                "RepayBorrow"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:150",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:151",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "TVB": "dark-red"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Rari Hosted Prom",
+      "fieldConfig": {
+        "defaults": {
           "unit": "percent"
         },
         "overrides": []
@@ -489,8 +676,8 @@
       "fillGradient": 10,
       "gridPos": {
         "h": 12,
-        "w": 13,
-        "x": 4,
+        "w": 8,
+        "x": 12,
         "y": 10
       },
       "hiddenSeries": false,
@@ -498,6 +685,7 @@
       "legend": {
         "avg": false,
         "current": false,
+        "hideZero": true,
         "max": false,
         "min": false,
         "show": true,
@@ -511,7 +699,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -521,7 +709,8 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "fuse_pool_assets_interest_rate{symbol=\"$symbol\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_interest_rate{symbol=\"$symbol\", id=~\"$id\"}",
           "interval": "",
           "legendFormat": "Pool #{{id}} {{side}} APY",
           "queryType": "randomWalk",
@@ -572,67 +761,60 @@
       }
     },
     {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": 0
+      },
       "datasource": "Rari Hosted Prom",
       "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {},
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "dark-orange",
-                "value": 30
-              },
-              {
-                "color": "dark-red",
-                "value": 70
-              }
-            ]
-          },
-          "unit": "percent"
-        },
+        "defaults": {},
         "overrides": []
       },
+      "fontSize": "80%",
+      "format": "currencyUSD",
       "gridPos": {
-        "h": 6,
-        "w": 7,
-        "x": 17,
+        "h": 12,
+        "w": 4,
+        "x": 20,
         "y": 10
       },
-      "id": 12,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
+      "id": 22,
+      "interval": null,
+      "legend": {
+        "show": true,
+        "values": false
       },
-      "pluginVersion": "7.4.5",
+      "legendType": "Under graph",
+      "links": [],
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "pluginVersion": "7.5.2",
+      "strokeWidth": 1,
       "targets": [
         {
-          "expr": "fuse_pool_assets_interest_rate{symbol=\"$symbol\", side=\"supply\"}",
+          "exemplar": true,
+          "expr": "fuse_pool_assets_supply_usd{symbol=\"$symbol\"}",
+          "format": "time_series",
+          "hide": false,
           "interval": "",
-          "legendFormat": "Pool #{{id}} Supply APY",
-          "queryType": "randomWalk",
+          "legendFormat": "Pool #{{id}} TVL",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Supply APYs Per Pool",
-      "type": "gauge"
+      "title": "USD TVL Per Pool",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {}
+        }
+      ],
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
     },
     {
       "datasource": "Rari Hosted Prom",
@@ -641,13 +823,12 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-red",
+                "color": "semi-dark-green",
                 "value": null
               }
             ]
@@ -657,29 +838,32 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 4,
+        "h": 4,
+        "w": 2,
         "x": 0,
-        "y": 11
+        "y": 15
       },
-      "id": 6,
+      "id": 19,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
-          "expr": "sum(fuse_pool_assets_borrow_usd{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_fees_usd{symbol=\"$symbol\", id=~\"$id\"})",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -688,7 +872,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Asset USD Total Borrowed",
+      "title": "Fees",
       "type": "stat"
     },
     {
@@ -698,61 +882,57 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "semi-dark-yellow",
                 "value": null
-              },
-              {
-                "color": "dark-orange",
-                "value": 30
-              },
-              {
-                "color": "dark-red",
-                "value": 70
               }
             ]
           },
-          "unit": "percent"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 7,
-        "x": 17,
-        "y": 16
+        "h": 4,
+        "w": 2,
+        "x": 2,
+        "y": 15
       },
-      "id": 16,
+      "id": 20,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
+        "text": {},
+        "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
-          "expr": "fuse_pool_assets_interest_rate{symbol=\"$symbol\", side=\"borrow\"}",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_reserves_usd{symbol=\"$symbol\", id=~\"$id\"})",
           "interval": "",
-          "legendFormat": "Pool #{{id}} Borrow APY",
+          "legendFormat": "",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Borrow APYs Per Pool",
-      "type": "gauge"
+      "title": "Reserves",
+      "type": "stat"
     },
     {
       "datasource": "Rari Hosted Prom",
@@ -761,7 +941,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -777,10 +956,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 3,
         "w": 4,
         "x": 0,
-        "y": 17
+        "y": 19
       },
       "id": 17,
       "options": {
@@ -789,17 +968,20 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
-          "expr": "sum(fuse_pool_assets_liquidations{symbol=\"$symbol\"})",
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_events{symbol=\"$symbol\", event=\"LiquidateBorrow\", id=~\"$id\"})",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -826,7 +1008,7 @@
           "value": "USDC"
         },
         "datasource": "Rari Hosted Prom",
-        "definition": "label_values(fuse_pool_assets_supply_amount, symbol)",
+        "definition": "label_values(fuse_pool_assets_supply_usd{id=~\"$id\"}, symbol)",
         "description": null,
         "error": null,
         "hide": 0,
@@ -836,7 +1018,42 @@
         "name": "symbol",
         "options": [],
         "query": {
-          "query": "label_values(fuse_pool_assets_supply_amount, symbol)",
+          "query": "label_values(fuse_pool_assets_supply_usd{id=~\"$id\"}, symbol)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "Rari Hosted Prom",
+        "definition": "label_values(fuse_pool_rss, id)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Pool",
+        "multi": true,
+        "name": "id",
+        "options": [],
+        "query": {
+          "query": "label_values(fuse_pool_rss, id)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -852,14 +1069,21 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": ["5s", "10s", "20s", "30s", "1m", "5m"]
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "20s",
+      "30s",
+      "1m",
+      "5m"
+    ]
   },
   "timezone": "",
   "title": "Fuse Asset Details",
   "uid": "TznZehQMk",
-  "version": 29
+  "version": 66
 }
