@@ -498,14 +498,25 @@ let arbitrumMaxTransactionGasLimit = new Gauge({
   help: "Stores the ArbGas speed limit for a single tx."
 });
 
-async function arbitrumEventLoop() {
-  const [blocks, accounts, slots, gas, txs, contracts] = await arbStats.methods
-    .getStats()
-    .call();
+let arbitrumETHUSDTVL = new Gauge({
+  name: "arbitrum_ethUsdTVL",
+  help: "Stores the USD amount of ETH deposited into Arbitrum."
+});
 
+async function arbitrumEventLoop() {
   const ethPrice = fuse.web3.utils.fromWei(
     await fuse.getEthUsdPriceBN()
   ) as number;
+
+  // Arbitrum ETH vault contract
+  const ethTVL = await fuse.web3.eth.getBalance(
+    "0x011b6e24ffb0b5f5fcc564cf4183c5bbbc96d515"
+  );
+  arbitrumETHUSDTVL.set((ethTVL.toString() / 1e18) * ethPrice);
+
+  const [blocks, accounts, slots, gas, txs, contracts] = await arbStats.methods
+    .getStats()
+    .call();
 
   arbitrumBlocks.set(parseInt(blocks));
   arbitrumAccounts.set(parseInt(accounts));
