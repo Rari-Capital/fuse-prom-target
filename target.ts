@@ -16,11 +16,6 @@ const alcxStakingContract = new fuse.web3.eth.Contract(
   "0xab8e74017a8cc7c15ffccd726603790d26d7deca"
 );
 
-let ethPriceUSD = new Gauge({
-  name: "ethPrice",
-  help: "Price of ETH in USD"
-});
-
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
   help: "Stores how many users are at different levels of leverage.",
@@ -219,8 +214,6 @@ async function eventLoop() {
       .call({ gas: 1e18 }),
     fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number
   ]);
-
-  ethPriceUSD.set(parseInt(ethPrice as any));
 
   console.log("Fetched base data...");
 
@@ -483,9 +476,9 @@ let arbitrumContracts = new Gauge({
   help: "Stores how many Arbitrum contracts have been created."
 });
 
-let arbitrumGasPricesWei = new Gauge({
+let arbitrumGasPrices = new Gauge({
   name: "arbitrum_gasPrices",
-  help: "Stores the wei price of many Arbitrum actions.",
+  help: "Stores the gas in USD of many Arbitrum actions.",
   labelNames: ["action"] as const
 });
 
@@ -510,6 +503,10 @@ async function arbitrumEventLoop() {
     .getStats()
     .call();
 
+  const ethPrice = fuse.web3.utils.fromWei(
+    await fuse.getEthUsdPriceBN()
+  ) as number;
+
   arbitrumBlocks.set(parseInt(blocks));
   arbitrumAccounts.set(parseInt(accounts));
   arbitrumStorage.set(parseInt(slots));
@@ -520,15 +517,21 @@ async function arbitrumEventLoop() {
   const [l2Tx, l1Calldata, storageAllocation, base, congestion, total] =
     await arbGasInfo.methods.getPricesInWei().call();
 
-  arbitrumGasPricesWei.set({ action: "l2Tx" }, parseInt(l2Tx));
-  arbitrumGasPricesWei.set({ action: "l1Calldata" }, parseInt(l1Calldata));
-  arbitrumGasPricesWei.set(
+  arbitrumGasPrices.set(
+    { action: "l1Calldata" },
+    (l1Calldata / 1e18) * ethPrice
+  );
+  arbitrumGasPrices.set(
     { action: "storageAllocation" },
     parseInt(storageAllocation)
   );
-  arbitrumGasPricesWei.set({ action: "base" }, parseInt(base));
-  arbitrumGasPricesWei.set({ action: "congestion" }, parseInt(congestion));
-  arbitrumGasPricesWei.set({ action: "total" }, parseInt(total));
+  arbitrumGasPrices.set(
+    { action: "congestion" },
+    (congestion / 1e18) * ethPrice
+  );
+  arbitrumGasPrices.set({ action: "l2Tx" }, (l2Tx / 1e18) * ethPrice);
+  arbitrumGasPrices.set({ action: "base" }, (base / 1e18) * ethPrice);
+  arbitrumGasPrices.set({ action: "total" }, (total / 1e18) * ethPrice);
 
   const [speedLimitPerSecond, gasPoolMax, maxTxGasLimit] =
     await arbGasInfo.methods.getGasAccountingParams().call();
@@ -536,19 +539,18 @@ async function arbitrumEventLoop() {
   arbitrumGasSpeedLimit.set(parseInt(speedLimitPerSecond));
   arbitrumMaxTransactionGasLimit.set(parseInt(maxTxGasLimit));
 
-  // TODO: THIS REVERTS RIGHT NOW FOR SOME REASON
-  // {
-  //   const [l2Tx, l1Calldata, storageAllocation] = await arbGasInfo.methods
-  //     .getPricesInArbGas()
-  //     .call();
+  {
+    const [l2Tx, l1Calldata, storageAllocation] = await arbGasInfo.methods
+      .getPricesInArbGas()
+      .call();
 
-  //   arbitrumGasPricesArbGas.set({ action: "l2Tx" }, parseInt(l2Tx));
-  //   arbitrumGasPricesArbGas.set({ action: "l1Calldata" }, parseInt(l1Calldata));
-  //   arbitrumGasPricesArbGas.set(
-  //     { action: "storageAllocation" },
-  //     parseInt(storageAllocation)
-  //   );
-  // }
+    arbitrumGasPricesArbGas.set({ action: "l2Tx" }, parseInt(l2Tx));
+    arbitrumGasPricesArbGas.set({ action: "l1Calldata" }, parseInt(l1Calldata));
+    arbitrumGasPricesArbGas.set(
+      { action: "storageAllocation" },
+      parseInt(storageAllocation)
+    );
+  }
 }
 
 // Event loop (every 35 secs)
