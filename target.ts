@@ -477,7 +477,7 @@ let arbitrumContracts = new Gauge({
 });
 
 let arbitrumGasPrices = new Gauge({
-  name: "arbitrum_gasPrices",
+  name: "arbitrum_gasPrices_usd",
   help: "Stores the gas in USD of many Arbitrum actions.",
   labelNames: ["action"] as const
 });
@@ -523,7 +523,7 @@ async function arbitrumEventLoop() {
   );
   arbitrumGasPrices.set(
     { action: "storageAllocation" },
-    parseInt(storageAllocation)
+    (storageAllocation / 1e18) * ethPrice
   );
   arbitrumGasPrices.set(
     { action: "congestion" },
