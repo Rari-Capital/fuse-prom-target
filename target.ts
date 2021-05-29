@@ -16,6 +16,11 @@ const alcxStakingContract = new fuse.web3.eth.Contract(
   "0xab8e74017a8cc7c15ffccd726603790d26d7deca"
 );
 
+let ethPriceUSD = new Gauge({
+  name: "ethPrice",
+  help: "Price of ETH in USD"
+});
+
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
   help: "Stores how many users are at different levels of leverage.",
@@ -214,6 +219,8 @@ async function eventLoop() {
       .call({ gas: 1e18 }),
     fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number
   ]);
+
+  ethPriceUSD.set(parseInt(ethPrice as any));
 
   console.log("Fetched base data...");
 
