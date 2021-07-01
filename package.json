@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "start-target": "npm run build && node --max-old-space-size=3072 build/target.js",
-    "start-proxy": "npm run build && node --max-old-space-size=3072 build/proxy.js",
+    "start-target": "npm run build && node build/target.js",
+    "start-proxy": "npm run build && node build/proxy.js",
     "start-pm2": "pm2 start ecosystem.config.js"
   },
   "keywords": [],
