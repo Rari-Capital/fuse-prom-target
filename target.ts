@@ -66,6 +66,12 @@ let poolAssetsEvents = new Gauge({
   labelNames: ["id", "symbol", "event"] as const
 });
 
+let poolBorrowers = new Gauge({
+  name: "fuse_pool_borrowers",
+  help: "Stores how many borrowers are in each pool.",
+  labelNames: ["id"] as const
+});
+
 let poolAssetsReservesAmount = new Gauge({
   name: "fuse_pool_assets_reserves_amount",
   help: "Stores how much of each asset is in reserves in each pool.",
@@ -167,12 +173,14 @@ type Task =
   | "events"
   | "user_leverage"
   | "reserves/fees"
-  | "staked_alcx";
+  | "staked_alcx"
+  | "borrowers";
 
 let lastRun: { [key in Task]: number } = {
   rss: 0,
   events: 0,
   user_leverage: 0,
+  borrowers: 0,
   "reserves/fees": 0,
   staked_alcx: 0
 };
@@ -187,7 +195,7 @@ function runEvery(key: Task, seconds: number) {
   if (msPassed >= ms) {
     setTimeout(() => {
       lastRun[key] = now;
-    }, 1000);
+    }, 10_000);
 
     console.log(
       chalk.green(
@@ -424,6 +432,20 @@ async function eventLoop() {
           removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
         );
       });
+    }
+
+    if (runEvery("borrowers", 120 /* 2 minutes */)) {
+      const comptroller = new fuse.web3.eth.Contract(
+        JSON.parse(
+          fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
+        ),
+        fusePools[i].comptroller
+      );
+
+      comptroller.methods
+        .getAllBorrowers()
+        .call()
+        .then(borrowers => poolBorrowers.set({ id }, borrowers.length));
     }
   }
 
