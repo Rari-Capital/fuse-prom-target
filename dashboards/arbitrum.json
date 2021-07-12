@@ -14,8 +14,9 @@
   },
   "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
-  "id": 21,
+  "graphTooltip": 1,
+  "id": 20,
+  "iteration": 1626115473880,
   "links": [],
   "panels": [
     {
@@ -23,7 +24,69 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#627eea",
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 7,
+        "x": 0,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.5",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(fuse_pool_assets_reserves_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Unused Reserves",
+      "type": "stat"
+    },
+    {
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "semi-dark-red",
             "mode": "fixed"
           },
           "mappings": [],
@@ -43,10 +106,10 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 0,
+        "x": 7,
         "y": 0
       },
-      "id": 5,
+      "id": 7,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -66,37 +129,30 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_ethUsdTVL",
+          "expr": "sum(fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"})",
           "interval": "",
-          "legendFormat": "Gas",
+          "legendFormat": "",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "ETH USD TVL",
+      "title": "Unclaimed Fees",
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
       "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "semi-dark-red",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -105,84 +161,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 16,
-        "x": 4,
-        "y": 0
-      },
-      "id": 7,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": 1,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_gasPrices_usd",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{action}} fee",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "USD Fees",
-      "transformations": [],
-      "type": "gauge"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "locale"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 22,
+        "h": 4,
         "w": 4,
-        "x": 20,
+        "x": 11,
         "y": 0
       },
-      "id": 13,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": null,
+      "id": 16,
+      "interval": "24h",
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -199,18 +187,14 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_gasPrices_arbGas",
-          "instant": false,
+          "expr": "sum(delta(fuse_pool_assets_fees_usd[7d])) * 4",
           "interval": "",
-          "legendFormat": "{{action}} ArbGas",
+          "legendFormat": "",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "ArbGas Fees",
-      "transformations": [],
+      "title": "Estimated Monthly Fees",
       "type": "stat"
     },
     {
@@ -218,7 +202,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "semi-dark-yellow",
+            "fixedColor": "#f5c09a",
             "mode": "fixed"
           },
           "mappings": [],
@@ -231,17 +215,17 @@
               }
             ]
           },
-          "unit": "locale"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 4
+        "h": 5,
+        "w": 5,
+        "x": 15,
+        "y": 0
       },
-      "id": 14,
+      "id": 21,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -261,16 +245,130 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_gas",
+          "expr": "fuse_staked_alcx_usd",
           "interval": "",
-          "legendFormat": "Gas",
+          "legendFormat": "",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Gas Consumed",
+      "title": "Staked ALCX",
+      "type": "stat"
+    },
+    {
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#f5c09a",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.5",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "fuse_staked_alcx_unclaimed_usd",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Earned ALCX",
+      "type": "stat"
+    },
+    {
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#f5c09a",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 20,
+        "y": 3
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.5",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "delta(fuse_staked_alcx_unclaimed_usd[14d]) * 2",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated Monthly Staking Profit",
       "type": "stat"
     },
     {
@@ -282,22 +380,21 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "hidden",
+            "axisPlacement": "left",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 50,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
-              "log": 2,
-              "type": "log"
+              "type": "linear"
             },
             "showPoints": "never",
             "spanNulls": true,
@@ -323,17 +420,33 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ALCX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(217, 150, 108)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 13,
-        "w": 16,
-        "x": 4,
-        "y": 6
+        "h": 10,
+        "w": 7,
+        "x": 0,
+        "y": 4
       },
-      "id": 11,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -348,72 +461,16 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_blocks",
+          "expr": "sum by (symbol) (fuse_pool_assets_reserves_usd{id=~\"$id\", symbol=~\"$symbol\"})",
           "interval": "",
-          "legendFormat": "Blocks",
+          "legendFormat": "{{symbol}}",
           "queryType": "randomWalk",
           "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_accounts",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Accounts",
-          "refId": "B"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_storage",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Storage Slots",
-          "refId": "C"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_transactions",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Transactions",
-          "refId": "E"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_contracts",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Contracts",
-          "refId": "F"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_gas",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "ArbGas",
-          "refId": "G"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_gasPrices_usd",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{action}} $ price",
-          "refId": "D"
-        },
-        {
-          "exemplar": true,
-          "expr": "arbitrum_ethUsdTVL",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "ETH USD TVL",
-          "refId": "H"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Overview",
+      "title": "Reserves USD",
       "type": "timeseries"
     },
     {
@@ -421,68 +478,35 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "semi-dark-green",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "locale"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 7
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_blocks",
-          "interval": "",
-          "legendFormat": "Blocks",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Total Blocks",
-      "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-red",
-            "mode": "fixed"
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 50,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -498,237 +522,93 @@
               }
             ]
           },
-          "unit": "locale"
+          "unit": "currencyUSD"
         },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 10
-      },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_contracts",
-          "interval": "",
-          "legendFormat": "Contracts",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Total Contracts",
-      "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ALCX"
+            },
+            "properties": [
               {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "locale"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 13
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_accounts",
-          "interval": "",
-          "legendFormat": "Accounts",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Total Accounts",
-      "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-orange",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(230, 151, 107)",
+                  "mode": "fixed"
+                }
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 16
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_transactions",
-          "interval": "",
-          "legendFormat": "Transactions",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Total Transactions",
-      "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "dark-purple",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "locale"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 19
+        "h": 10,
+        "w": 8,
+        "x": 7,
+        "y": 4
       },
       "id": 4,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right"
         },
-        "text": {},
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single"
+        }
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.3",
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_storage",
+          "expr": "sum by (symbol) (fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"})",
           "interval": "",
-          "legendFormat": "Storage Slots",
+          "legendFormat": "{{symbol}}",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Storage Slots Used",
-      "type": "stat"
+      "title": "Fees USD",
+      "type": "timeseries"
     },
     {
       "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 50,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -739,124 +619,166 @@
                 "value": null
               },
               {
-                "color": "rgb(37, 208, 90)",
+                "color": "red",
                 "value": 80
               }
             ]
           },
-          "unit": "locale"
+          "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ALCX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(230, 151, 107)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pool 3 Fees"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pool 3 Reserves"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Staked ALCX"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f5c09a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 4,
-        "y": 19
+        "h": 16,
+        "w": 9,
+        "x": 15,
+        "y": 5
       },
-      "id": 8,
+      "id": 10,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right"
         },
-        "text": {},
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single"
+        }
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.3",
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_gasSpeedLimit",
+          "expr": "fuse_staked_alcx_usd + fuse_staked_alcx_unclaimed_usd",
+          "hide": false,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "Staked ALCX",
+          "refId": "C"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum by (id) (fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "interval": "",
+          "legendFormat": "Pool #{{id}} Fees",
           "queryType": "randomWalk",
           "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum by (id) (fuse_pool_assets_reserves_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Pool #{{id}} Reserves",
+          "refId": "B"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "ArbGas/sec Limit",
-      "type": "stat"
+      "title": "Fees/Reserves Per Pool",
+      "type": "timeseries"
     },
     {
       "cacheTimeout": null,
       "datasource": "grafanacloud-rari-prom",
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 9,
-        "y": 19
-      },
-      "id": 15,
-      "interval": null,
-      "links": [],
-      "maxDataPoints": 1,
-      "options": {
-        "content": "# Made by [@transmissions11](https://twitter.com/transmissions11)\nFollow me on Twitter for L2 alpha or you're ngmi.",
-        "mode": "markdown"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "arbitrum_gasPrices_arbGas",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{action}} ArbGas",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "transformations": [],
-      "type": "text"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "locale"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 15,
-        "y": 19
+        "h": 7,
+        "w": 3,
+        "x": 0,
+        "y": 14
       },
-      "id": 9,
+      "id": 12,
+      "interval": null,
+      "links": [],
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "values": []
+        },
+        "pieType": "pie",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -864,24 +786,227 @@
           "fields": "",
           "values": false
         },
-        "text": {},
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single"
+        }
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "7.5.2",
       "targets": [
         {
           "exemplar": true,
-          "expr": "arbitrum_maxTxGasLimit",
+          "expr": "sum by (symbol) (fuse_pool_assets_reserves_usd{id=~\"$id\", symbol=~\"$symbol\"})",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "{{symbol}}",
           "queryType": "randomWalk",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "ArbGas/tx Limit",
-      "type": "stat"
+      "title": "Reserves Per Asset",
+      "type": "piechart"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 3,
+        "y": 14
+      },
+      "id": 13,
+      "interval": null,
+      "links": [],
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "7.5.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (id) (fuse_pool_assets_reserves_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "interval": "",
+          "legendFormat": "Pool #{{id}}",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Reserves Per Pool",
+      "type": "piechart"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 3,
+        "x": 7,
+        "y": 14
+      },
+      "id": 14,
+      "interval": null,
+      "links": [],
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "7.5.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (symbol) (fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "interval": "",
+          "legendFormat": "{{symbol}}",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Fees Per Asset",
+      "type": "piechart"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "grafanacloud-rari-prom",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 10,
+        "y": 14
+      },
+      "id": 11,
+      "interval": null,
+      "links": [],
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "7.5.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (id) (fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"})",
+          "interval": "",
+          "legendFormat": "Pool #{{id}}",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Fees Per Pool",
+      "type": "piechart"
     }
   ],
   "refresh": "5m",
@@ -889,7 +1014,76 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "grafanacloud-rari-prom",
+        "definition": "label_values(fuse_pool_rss, id)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Pool ID",
+        "multi": true,
+        "name": "id",
+        "options": [],
+        "query": {
+          "query": "label_values(fuse_pool_rss, id)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "grafanacloud-rari-prom",
+        "definition": "label_values(fuse_pool_assets_supply_amount{id=~\"$id\"}, symbol)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Asset",
+        "multi": true,
+        "name": "symbol",
+        "options": [],
+        "query": {
+          "query": "label_values(fuse_pool_assets_supply_amount{id=~\"$id\"}, symbol)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-7d",
@@ -897,7 +1091,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Arbitrum",
-  "uid": "p-D1Mq3Mz",
-  "version": 99
+  "title": "Fees/Reserves",
+  "uid": "44n5PTlGk",
+  "version": 90
 }
