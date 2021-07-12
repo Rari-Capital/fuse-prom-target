@@ -16,11 +16,11 @@
   "gnetId": null,
   "graphTooltip": 1,
   "id": 11,
-  "iteration": 1625118659862,
+  "iteration": 1626115531194,
   "links": [],
   "panels": [
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -74,7 +74,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd{id=\"$poolID\"}) / sum(fuse_pool_assets_supply_usd{id=\"$poolID\"})",
@@ -90,7 +90,7 @@
       "type": "gauge"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -98,7 +98,7 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "hidden",
+            "axisPlacement": "left",
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 100,
@@ -164,7 +164,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 8,
+        "w": 7,
         "x": 4,
         "y": 0
       },
@@ -203,7 +203,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -225,7 +225,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 12,
+        "x": 11,
         "y": 0
       },
       "id": 22,
@@ -278,7 +278,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -286,7 +286,7 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "hidden",
+            "axisPlacement": "left",
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -297,6 +297,9 @@
               "viz": false
             },
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -332,8 +335,8 @@
       },
       "gridPos": {
         "h": 14,
-        "w": 8,
-        "x": 16,
+        "w": 9,
+        "x": 15,
         "y": 0
       },
       "id": 11,
@@ -377,7 +380,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -419,7 +422,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "exemplar": false,
@@ -439,7 +442,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -467,7 +470,7 @@
       },
       "id": 4,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -481,7 +484,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_supply_usd{id=\"$poolID\"})",
@@ -497,7 +500,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -551,7 +554,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 8,
+        "w": 7,
         "x": 4,
         "y": 7
       },
@@ -559,7 +562,7 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
@@ -603,7 +606,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -625,7 +628,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 12,
+        "x": 11,
         "y": 7
       },
       "id": 23,
@@ -678,7 +681,7 @@
       "type": "piechart"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -706,7 +709,7 @@
       },
       "id": 6,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -720,7 +723,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd{id=\"$poolID\"})",
@@ -736,7 +739,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -744,7 +747,7 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "hidden",
+            "axisPlacement": "left",
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -833,7 +836,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -841,7 +844,7 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "hidden",
+            "axisPlacement": "left",
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -932,7 +935,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -960,7 +963,7 @@
       },
       "id": 20,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -974,7 +977,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "exemplar": true,
@@ -991,7 +994,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1019,7 +1022,7 @@
       },
       "id": 21,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -1033,7 +1036,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "exemplar": true,
@@ -1050,7 +1053,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1078,7 +1081,7 @@
       },
       "id": 17,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -1092,7 +1095,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "exemplar": true,
@@ -1109,7 +1112,7 @@
       "type": "stat"
     },
     {
-      "datasource": "Rari Hosted Prom",
+      "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1139,7 +1142,7 @@
       },
       "id": 18,
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -1153,7 +1156,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.0.5",
       "targets": [
         {
           "expr": "fuse_pool_rss{id=\"$poolID\"}",
@@ -1169,7 +1172,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "5m",
+  "refresh": "10s",
   "schemaVersion": 30,
   "style": "dark",
   "tags": [],
@@ -1179,10 +1182,10 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "3",
-          "value": "3"
+          "text": "18",
+          "value": "18"
         },
-        "datasource": "Rari Hosted Prom",
+        "datasource": "grafanacloud-rari-prom",
         "definition": "label_values(fuse_pool_assets_supply_amount, id)",
         "description": null,
         "error": null,
@@ -1224,5 +1227,5 @@
   "timezone": "",
   "title": "Fuse Pool Details",
   "uid": "HChNahwGk",
-  "version": 111
+  "version": 126
 }
