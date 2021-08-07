@@ -14,10 +14,10 @@ async function fetchAndCacheWithFallback() {
       res.text()
     )) as string;
 
-    // Wait at least 30 seconds since we last served from cache to give the full response in case all metrics haven't loaded yet.
-    if (Date.now() - lastServedFromCache <= 30_000) {
+    // Wait at least 60 seconds since we last served from cache to give the full response in case all metrics haven't loaded yet.
+    if (Date.now() - lastServedFromCache <= 60_000) {
       console.log(
-        "Serving cache for 30 more seconds to ensure that our target has fully started up."
+        "Serving cache for 1 minute to ensure that the target has fully started up."
       );
     } else {
       cache = metrics;
@@ -33,7 +33,7 @@ async function fetchAndCacheWithFallback() {
   return cache;
 }
 
-app.get("/metrics", async (req, res) => {
+app.get("/metrics", async (_, res) => {
   res.set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
 
   res.end(await fetchAndCacheWithFallback());

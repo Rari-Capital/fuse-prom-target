@@ -5,8 +5,6 @@ import express from "express";
 import fetch from "node-fetch";
 import chalk from "chalk";
 
-import Web3 from "web3";
-
 import Fuse from "./fuse.node.commonjs2.js";
 
 const fuse = new Fuse("https://turbogeth.crows.sh");
@@ -458,144 +456,10 @@ setInterval(eventLoop, 15_000);
 // Run instantly the first time.
 eventLoop();
 
-const arb1 = new Web3("https://arb1.arbitrum.io/rpc");
-const arbStats = new arb1.eth.Contract(
-  require("../abis/ArbStatistics.json"),
-  "0x000000000000000000000000000000000000006F"
-);
-const arbGasInfo = new arb1.eth.Contract(
-  require("../abis/ArbGasInfo.json"),
-  "0x000000000000000000000000000000000000006C"
-);
-
-let arbitrumBlocks = new Gauge({
-  name: "arbitrum_blocks",
-  help: "Stores how many Arbitrum blocks have been generated."
-});
-
-let arbitrumAccounts = new Gauge({
-  name: "arbitrum_accounts",
-  help: "Stores how many Arbitrum accounts have been generated."
-});
-
-let arbitrumStorage = new Gauge({
-  name: "arbitrum_storage",
-  help: "Stores how many Arbitrum storage slots have been generated."
-});
-
-let arbitrumGas = new Gauge({
-  name: "arbitrum_gas",
-  help: "Stores how many Arbitrum gas units have been consumed."
-});
-
-let arbitrumTransactions = new Gauge({
-  name: "arbitrum_transactions",
-  help: "Stores how many Arbitrum transactions have been generated."
-});
-
-let arbitrumContracts = new Gauge({
-  name: "arbitrum_contracts",
-  help: "Stores how many Arbitrum contracts have been created."
-});
-
-let arbitrumGasPrices = new Gauge({
-  name: "arbitrum_gasPrices_usd",
-  help: "Stores the gas in USD of many Arbitrum actions.",
-  labelNames: ["action"] as const
-});
-
-let arbitrumGasPricesArbGas = new Gauge({
-  name: "arbitrum_gasPrices_arbGas",
-  help: "Stores the arbGas price of many Arbitrum events.",
-  labelNames: ["action"] as const
-});
-
-let arbitrumGasSpeedLimit = new Gauge({
-  name: "arbitrum_gasSpeedLimit",
-  help: "Stores the ArbGas speed limit (per second)."
-});
-
-let arbitrumMaxTransactionGasLimit = new Gauge({
-  name: "arbitrum_maxTxGasLimit",
-  help: "Stores the ArbGas speed limit for a single tx."
-});
-
-let arbitrumETHUSDTVL = new Gauge({
-  name: "arbitrum_ethUsdTVL",
-  help: "Stores the USD amount of ETH deposited into Arbitrum."
-});
-
-async function arbitrumEventLoop() {
-  const ethPrice = fuse.web3.utils.fromWei(
-    await fuse.getEthUsdPriceBN()
-  ) as number;
-
-  // Arbitrum ETH vault contract
-  const ethTVL = await fuse.web3.eth.getBalance(
-    "0x011b6e24ffb0b5f5fcc564cf4183c5bbbc96d515"
-  );
-  arbitrumETHUSDTVL.set((ethTVL.toString() / 1e18) * ethPrice);
-
-  const [blocks, accounts, slots, gas, txs, contracts] = await arbStats.methods
-    .getStats()
-    .call();
-
-  arbitrumBlocks.set(parseInt(blocks));
-  arbitrumAccounts.set(parseInt(accounts));
-  arbitrumStorage.set(parseInt(slots));
-  arbitrumGas.set(parseInt(gas));
-  arbitrumTransactions.set(parseInt(txs));
-  arbitrumContracts.set(parseInt(contracts));
-
-  const [l2Tx, l1Calldata, storageAllocation, base, congestion, total] =
-    await arbGasInfo.methods.getPricesInWei().call();
-
-  arbitrumGasPrices.set(
-    { action: "l1Calldata" },
-    (l1Calldata / 1e18) * ethPrice
-  );
-  arbitrumGasPrices.set(
-    { action: "storageAllocation" },
-    (storageAllocation / 1e18) * ethPrice
-  );
-  arbitrumGasPrices.set(
-    { action: "congestion" },
-    (congestion / 1e18) * ethPrice
-  );
-  arbitrumGasPrices.set({ action: "l2Tx" }, (l2Tx / 1e18) * ethPrice);
-  arbitrumGasPrices.set({ action: "base" }, (base / 1e18) * ethPrice);
-  arbitrumGasPrices.set({ action: "total" }, (total / 1e18) * ethPrice);
-
-  const [speedLimitPerSecond, gasPoolMax, maxTxGasLimit] =
-    await arbGasInfo.methods.getGasAccountingParams().call();
-
-  arbitrumGasSpeedLimit.set(parseInt(speedLimitPerSecond));
-  arbitrumMaxTransactionGasLimit.set(parseInt(maxTxGasLimit));
-
-  {
-    const [l2Tx, l1Calldata, storageAllocation] = await arbGasInfo.methods
-      .getPricesInArbGas()
-      .call();
-
-    arbitrumGasPricesArbGas.set({ action: "l2Tx" }, parseInt(l2Tx));
-    arbitrumGasPricesArbGas.set({ action: "l1Calldata" }, parseInt(l1Calldata));
-    arbitrumGasPricesArbGas.set(
-      { action: "storageAllocation" },
-      parseInt(storageAllocation)
-    );
-  }
-}
-
-// Event loop (every 35 secs)
-setInterval(arbitrumEventLoop, 35_000);
-
-// Run instantly the first time.
-arbitrumEventLoop();
-
 const app = express();
 const port = 1336;
 
-app.get("/metrics", async (req, res) => {
+app.get("/metrics", async (_, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 });
