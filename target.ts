@@ -351,7 +351,7 @@ async function eventLoop() {
               });
           }
 
-          if (runEvery("events", 60 /* 1 minute */)) {
+          if (runEvery("events", 600 /* 10 minutes */)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
@@ -394,7 +394,7 @@ async function eventLoop() {
           if (
             asset.underlyingToken.toLowerCase() ===
               "0xdbdb4d16eda451d0503b854cf79d55697f90c8df".toLowerCase() &&
-            runEvery("staked_alcx", 60 /* 1 minute */)
+            runEvery("staked_alcx", 600 /* 10 minutes */)
           ) {
             alcxStakingContract.methods
               .getStakeTotalDeposited(alcxStakingAccount, "1")
@@ -419,7 +419,7 @@ async function eventLoop() {
         });
       });
 
-    if (runEvery("user_leverage", 30 /* 30 secs */)) {
+    if (runEvery("user_leverage", 120 /* 2 minutes */)) {
       Promise.all([
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18)
@@ -436,27 +436,13 @@ async function eventLoop() {
         );
       });
     }
-
-    if (runEvery("borrowers", 120 /* 2 minutes */)) {
-      const comptroller = new fuse.web3.eth.Contract(
-        JSON.parse(
-          fuse.compoundContracts["contracts/Comptroller.sol:Comptroller"].abi
-        ),
-        fusePools[i].comptroller
-      );
-
-      comptroller.methods
-        .getAllBorrowers()
-        .call()
-        .then(borrowers => poolBorrowers.set({ id }, borrowers.length));
-    }
   }
 
   setTimeout(() => console.log("\n\n\n\n\n\n\n\n\n"), 2_500);
 }
 
-// Event loop (every 15 secs)
-setInterval(eventLoop, 15_000);
+// Event loop (every 60 seconds)
+setInterval(eventLoop, 60_000);
 
 // Run instantly the first time.
 eventLoop();
