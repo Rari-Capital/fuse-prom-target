@@ -8,6 +8,12 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
@@ -16,28 +22,7 @@
   "gnetId": null,
   "graphTooltip": 1,
   "id": 3,
-  "links": [
-    {
-      "icon": "external link",
-      "tags": [],
-      "targetBlank": true,
-      "title": "Fuse Interface",
-      "type": "link",
-      "url": "https://app.rari.capital/fuse"
-    },
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": false,
-      "keepTime": false,
-      "tags": [],
-      "targetBlank": true,
-      "title": "Manual Liquidation Interface",
-      "tooltip": "",
-      "type": "link",
-      "url": "http://rari.davidlucid.com/fuse/ "
-    }
-  ],
+  "links": [],
   "panels": [
     {
       "datasource": "grafanacloud-rari-prom",
@@ -94,7 +79,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd) / sum(fuse_pool_assets_supply_usd)",
@@ -213,6 +198,7 @@
           "refId": "B"
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
       "title": "USD Total TVL/TVB",
@@ -291,6 +277,7 @@
       "pluginVersion": "8.0.3",
       "targets": [
         {
+          "exemplar": true,
           "expr": "sum by (symbol) (fuse_pool_assets_supply_usd)",
           "hide": false,
           "interval": "",
@@ -298,6 +285,7 @@
           "refId": "A"
         },
         {
+          "exemplar": true,
           "expr": "sum by (symbol) (fuse_pool_assets_borrow_usd)",
           "hide": false,
           "interval": "",
@@ -353,7 +341,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -393,7 +381,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
+        "w": 2,
         "x": 4,
         "y": 5
       },
@@ -413,7 +401,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -560,8 +548,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 7,
+        "w": 4,
+        "x": 6,
         "y": 5
       },
       "id": 16,
@@ -578,14 +566,6 @@
       "pluginVersion": "8.0.3",
       "targets": [
         {
-          "expr": "",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Leveraged",
-          "queryType": "randomWalk",
-          "refId": "B"
-        },
-        {
           "expr": "sum(fuse_userLeverage{level=\"at_risk\"})",
           "interval": "",
           "legendFormat": "At Risk",
@@ -598,9 +578,10 @@
           "interval": "",
           "legendFormat": "Liquidatable",
           "queryType": "randomWalk",
-          "refId": "C"
+          "refId": "B"
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
       "title": "User Leverage",
@@ -649,7 +630,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd)",
@@ -785,65 +766,6 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 2,
-        "x": 0,
-        "y": 12
-      },
-      "id": 30,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.5",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum(fuse_pool_borrowers)",
-          "interval": "",
-          "legendFormat": "",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Borrowers",
-      "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
                 "color": "dark-yellow",
                 "value": null
               }
@@ -855,8 +777,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 2,
-        "x": 2,
+        "w": 4,
+        "x": 0,
         "y": 12
       },
       "id": 25,
@@ -875,7 +797,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -913,7 +835,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 4,
         "x": 0,
         "y": 14
@@ -982,7 +904,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 4,
         "x": 4,
         "y": 14
@@ -1051,7 +973,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 4,
         "x": 8,
         "y": 14
@@ -1152,7 +1074,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 12,
         "y": 14
@@ -1191,7 +1113,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "5m",
+  "refresh": "20s",
   "schemaVersion": 30,
   "style": "dark",
   "tags": [],
@@ -1199,7 +1121,7 @@
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-14d",
     "to": "now"
   },
   "timepicker": {
@@ -1215,5 +1137,5 @@
   "timezone": "",
   "title": "Fuse Overview",
   "uid": "NlUs6DwGk",
-  "version": 196
+  "version": 213
 }
