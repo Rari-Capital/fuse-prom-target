@@ -5,30 +5,33 @@ const app = express();
 const port = 1337;
 
 let cache: string;
-let lastServedFromCache: number = 0;
+let lastFetchFailure: number = 0;
+
+function hasBeen5Minutes(startTime: number) {
+  return Date.now() - startTime >= 300_000;
+}
 
 async function fetchAndCacheWithFallback() {
-  console.time("Target Fetch");
   try {
-    const metrics = (await fetch("http://localhost:1336/metrics").then(res =>
-      res.text()
-    )) as string;
+    const { lastRestart } = await fetch("http://localhost:1336/ops", {
+      timeout: 1000 // 1 second timeout.
+    }).then(res => res.json());
 
-    // Wait at least 60 seconds since we last served from cache to give the full response in case all metrics haven't loaded yet.
-    if (Date.now() - lastServedFromCache <= 60_000) {
-      console.log(
-        "Serving cache for 1 minute to ensure that the target has fully started up."
-      );
+    if (hasBeen5Minutes(lastRestart) && hasBeen5Minutes(lastFetchFailure)) {
+      cache = await fetch("http://localhost:1336/metrics", {
+        timeout: 5000 // 5 second timeout.
+      }).then(res => res.text());
     } else {
-      cache = metrics;
+      console.warn(
+        "Serving cache for 5 minutes to ensure that the target has fully started up."
+      );
     }
   } catch (e) {
     console.log(e);
-    console.log("\n\n Fetch to target failed, using cache! \n\n");
+    console.warn("Fetch to target failed, using cache!");
 
-    lastServedFromCache = Date.now();
+    lastFetchFailure = Date.now();
   }
-  console.timeEnd("Target Fetch");
 
   return cache;
 }

@@ -459,9 +459,15 @@ eventLoop();
 const app = express();
 const port = 1336;
 
+let lastRestart = Date.now();
+
 app.get("/metrics", async (_, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
+});
+
+app.get("/ops", async (_, res) => {
+  res.json({ lastRestart });
 });
 
 app.listen(port, () => {
