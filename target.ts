@@ -226,6 +226,11 @@ async function eventLoop() {
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
 
+    if (id == 4) {
+      // Pool 4 is broken, we'll just skip it for now.
+      continue;
+    }
+
     console.log("Fetching pool #", id);
 
     if (runEvery("rss", 600 /* 10 mins */)) {
