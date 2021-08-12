@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 1,
   "id": 20,
-  "iteration": 1626115473880,
+  "iteration": 1628809931386,
   "links": [],
   "panels": [
     {
@@ -67,7 +67,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -125,7 +125,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -136,7 +136,7 @@
           "refId": "A"
         }
       ],
-      "title": "Unclaimed Fees",
+      "title": "Unclaimed Fuse Fees",
       "type": "stat"
     },
     {
@@ -183,7 +183,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -194,7 +194,7 @@
           "refId": "A"
         }
       ],
-      "title": "Estimated Monthly Fees",
+      "title": "Estimated Monthly Fuse Fees",
       "type": "stat"
     },
     {
@@ -241,7 +241,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -299,7 +299,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -357,7 +357,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.5",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
           "exemplar": true,
@@ -572,7 +572,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Fees USD",
+      "title": "Fuse Fees USD",
       "type": "timeseries"
     },
     {
@@ -937,7 +937,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Fees Per Asset",
+      "title": "Fuse Fees Per Asset",
       "type": "piechart"
     },
     {
@@ -1005,7 +1005,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Fees Per Pool",
+      "title": "Fuse Fees Per Pool",
       "type": "piechart"
     }
   ],
@@ -1086,12 +1086,12 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-14d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Fees/Reserves",
   "uid": "44n5PTlGk",
-  "version": 90
+  "version": 95
 }
