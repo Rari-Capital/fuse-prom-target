@@ -170,7 +170,7 @@ type Task =
   | "rss"
   | "events"
   | "user_leverage"
-  | "reserves/fees"
+  | "reserves_fees"
   | "staked_alcx"
   | "borrowers";
 
@@ -179,11 +179,11 @@ let lastRun: { [key in Task]: number } = {
   events: 0,
   user_leverage: 0,
   borrowers: 0,
-  "reserves/fees": 0,
+  reserves_fees: 0,
   staked_alcx: 0
 };
 
-function runEvery(key: Task, seconds: number) {
+function runEvery(key: Task, seconds: number, instantLastRunUpdate?: boolean) {
   const ms = seconds * 1000;
 
   const now = Date.now();
@@ -191,9 +191,13 @@ function runEvery(key: Task, seconds: number) {
   const msPassed = Date.now() - lastRun[key];
 
   if (msPassed >= ms) {
-    setTimeout(() => {
+    if (instantLastRunUpdate) {
       lastRun[key] = now;
-    }, 10_000);
+    } else {
+      setTimeout(() => {
+        lastRun[key] = now;
+      }, 10_000);
+    }
 
     console.log(
       chalk.green(
@@ -233,21 +237,6 @@ async function eventLoop() {
 
     console.log("Fetching pool #", id);
 
-    if (runEvery("rss", 600 /* 10 mins */)) {
-      fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
-        .then(res => res.json())
-        .then(data => {
-          console.log(
-            "Fetching RSS for pool #",
-            id,
-            "which was last updated",
-            data.lastUpdated
-          );
-
-          poolRSS.set({ id }, data.totalScore);
-        });
-    }
-
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
       .call({
@@ -258,7 +247,7 @@ async function eventLoop() {
         assets.forEach(asset => {
           console.log("Updating general data", asset.underlyingSymbol);
 
-          // Amount
+          // Amount //
 
           poolSuppliedAssetsAmount.set(
             { id, symbol: asset.underlyingSymbol },
@@ -270,7 +259,7 @@ async function eventLoop() {
             asset.totalBorrow / 10 ** asset.underlyingDecimals
           );
 
-          // USD
+          // USD //
 
           poolSuppliedAssetsUSD.set(
             { id, symbol: asset.underlyingSymbol },
@@ -282,7 +271,7 @@ async function eventLoop() {
             ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice
           );
 
-          // Interst Rates
+          // Interest Rates //
 
           const supplyAPY =
             (Math.pow(
@@ -310,7 +299,7 @@ async function eventLoop() {
             borrowAPY
           );
 
-          if (runEvery("reserves/fees", 600 /* 10 minutes */)) {
+          if (runEvery("reserves_fees", 600 /* 10 minutes */)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
@@ -394,7 +383,7 @@ async function eventLoop() {
           if (
             asset.underlyingToken.toLowerCase() ===
               "0xdbdb4d16eda451d0503b854cf79d55697f90c8df".toLowerCase() &&
-            runEvery("staked_alcx", 600 /* 10 minutes */)
+            runEvery("staked_alcx", 600 /* 10 minutes */, true)
           ) {
             alcxStakingContract.methods
               .getStakeTotalDeposited(alcxStakingAccount, "1")
@@ -418,6 +407,21 @@ async function eventLoop() {
           }
         });
       });
+
+    if (runEvery("rss", 600 /* 10 mins */)) {
+      fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(
+            "Fetching RSS for pool #",
+            id,
+            "which was last updated",
+            data.lastUpdated
+          );
+
+          poolRSS.set({ id }, data.totalScore);
+        });
+    }
 
     if (runEvery("user_leverage", 120 /* 2 minutes */)) {
       Promise.all([
