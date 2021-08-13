@@ -3,8 +3,7 @@ module.exports = {
     {
       name: "fuse-prom-target",
       script: "npm",
-      args: "run start-target",
-      cron_restart: "0 * * * *" // Restart every hour.
+      args: "run start-target"
     },
     {
       name: "fuse-prom-proxy",
