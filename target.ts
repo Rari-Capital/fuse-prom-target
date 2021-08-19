@@ -14,6 +14,12 @@ const alcxStakingContract = new fuse.web3.eth.Contract(
   "0xab8e74017a8cc7c15ffccd726603790d26d7deca"
 );
 
+let twaps = new Gauge({
+  name: "fuse_twaps",
+  help: "Stores if Fuse TWAPs need updating. 0 indicates no, 1 indicates yes.",
+  labelNames: ["ticker"] as const
+});
+
 let userLeverage = new Gauge({
   name: "fuse_userLeverage",
   help: "Stores how many users are at different levels of leverage.",
@@ -199,21 +205,7 @@ function runEvery(key: Task, seconds: number, instantLastRunUpdate?: boolean) {
       }, 10_000);
     }
 
-    console.log(
-      chalk.green(
-        `Running ${key} now! It will be ${seconds} seconds until the next run.`
-      )
-    );
-
     return true;
-  } else {
-    console.log(
-      chalk.yellow(
-        `Skipping ${key}. There are ${((ms - msPassed) / 1000).toFixed(
-          2
-        )} seconds left until the next run.`
-      )
-    );
   }
 }
 
@@ -225,8 +217,6 @@ async function eventLoop() {
     fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number
   ]);
 
-  console.log("Fetched base data...");
-
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
 
@@ -234,8 +224,6 @@ async function eventLoop() {
       // Pool 4 is broken, we'll just skip it for now.
       continue;
     }
-
-    console.log("Fetching pool #", id);
 
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
@@ -245,8 +233,6 @@ async function eventLoop() {
       })
       .then((assets: FuseAsset[]) => {
         assets.forEach(asset => {
-          console.log("Updating general data", asset.underlyingSymbol);
-
           // Amount //
 
           poolSuppliedAssetsAmount.set(
@@ -412,13 +398,6 @@ async function eventLoop() {
       fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
         .then(res => res.json())
         .then(data => {
-          console.log(
-            "Fetching RSS for pool #",
-            id,
-            "which was last updated",
-            data.lastUpdated
-          );
-
           poolRSS.set({ id }, data.totalScore);
         });
     }
@@ -428,8 +407,6 @@ async function eventLoop() {
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
         fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18)
       ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
-        console.log("Fetching leverage data", id);
-
         userLeverage.set(
           { id, level: "liquidatable" },
           underwaterUsersArray.length
@@ -440,9 +417,18 @@ async function eventLoop() {
         );
       });
     }
-  }
 
-  setTimeout(() => console.log("\n\n\n\n\n\n\n\n\n"), 2_500);
+    fetch(`https://api.rari.capital/fuse/twaps`)
+      .then(res => res.json())
+      .then(data => {
+        for (const twap of Object.values(data) as {
+          ticker: string;
+          workable: boolean;
+        }[]) {
+          twaps.set({ ticker: twap.ticker }, twap.workable ? 1 : 0);
+        }
+      });
+  }
 }
 
 // Event loop (every 60 seconds)
