@@ -3,7 +3,6 @@ client.collectDefaultMetrics();
 
 import express from "express";
 import fetch from "node-fetch";
-import chalk from "chalk";
 
 import Fuse from "./fuse.node.commonjs2.js";
 
@@ -64,16 +63,10 @@ let poolBorrowedAssetsUSD = new Gauge({
   labelNames: ["id", "symbol"] as const
 });
 
-let poolAssetsEvents = new Gauge({
-  name: "fuse_pool_assets_events",
-  help: "Stores each type of event that occurs on each asset in each pool.",
-  labelNames: ["id", "symbol", "event"] as const
-});
-
-let poolBorrowers = new Gauge({
-  name: "fuse_pool_borrowers",
-  help: "Stores how many borrowers are in each pool.",
-  labelNames: ["id"] as const
+let poolAssetLiquidations = new Gauge({
+  name: "fuse_pool_assets_liquidations",
+  help: "Stores how many liquidations have been performed on each asset in a each pool.",
+  labelNames: ["id", "symbol"] as const
 });
 
 let poolAssetsReservesAmount = new Gauge({
@@ -174,7 +167,7 @@ export interface FuseAsset {
 
 type Task =
   | "rss"
-  | "events"
+  | "liquidations"
   | "user_leverage"
   | "reserves_fees"
   | "staked_alcx"
@@ -182,7 +175,7 @@ type Task =
 
 let lastRun: { [key in Task]: number } = {
   rss: 0,
-  events: 0,
+  liquidations: 0,
   user_leverage: 0,
   borrowers: 0,
   reserves_fees: 0,
@@ -225,6 +218,8 @@ async function eventLoop() {
       continue;
     }
 
+    ///////////////////// Assets /////////////////////
+
     fuse.contracts.FusePoolLens.methods
       .getPoolAssetsWithData(fusePools[i].comptroller)
       .call({
@@ -232,8 +227,32 @@ async function eventLoop() {
         gas: 1e18
       })
       .then((assets: FuseAsset[]) => {
-        assets.forEach(asset => {
-          // Amount //
+        for (const asset of assets) {
+          ////////////////// USD //////////////////
+
+          const usdTVL =
+            ((asset.totalSupply * asset.underlyingPrice) / 1e36) * ethPrice;
+
+          const usdTVB =
+            ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice;
+
+          // If no one is lending the asset,
+          // we don't need to fetch anything else.
+          if (usdTVL == 0) {
+            continue;
+          }
+
+          poolSuppliedAssetsUSD.set(
+            { id, symbol: asset.underlyingSymbol },
+            usdTVL
+          );
+
+          poolBorrowedAssetsUSD.set(
+            { id, symbol: asset.underlyingSymbol },
+            usdTVB
+          );
+
+          ////////////////// Amount //////////////////
 
           poolSuppliedAssetsAmount.set(
             { id, symbol: asset.underlyingSymbol },
@@ -245,19 +264,13 @@ async function eventLoop() {
             asset.totalBorrow / 10 ** asset.underlyingDecimals
           );
 
-          // USD //
+          // If no one is borrowing the asset,
+          // we don't need to fetch anything else.
+          if (usdTVB == 0) {
+            continue;
+          }
 
-          poolSuppliedAssetsUSD.set(
-            { id, symbol: asset.underlyingSymbol },
-            ((asset.totalSupply * asset.underlyingPrice) / 1e36) * ethPrice
-          );
-
-          poolBorrowedAssetsUSD.set(
-            { id, symbol: asset.underlyingSymbol },
-            ((asset.totalBorrow * asset.underlyingPrice) / 1e36) * ethPrice
-          );
-
-          // Interest Rates //
+          ////////////// Interest Rates ///////////////
 
           const supplyAPY =
             (Math.pow(
@@ -284,6 +297,8 @@ async function eventLoop() {
             { id, symbol: asset.underlyingSymbol, side: "borrow" },
             borrowAPY
           );
+
+          ////////////// Fees And Reserves ///////////////
 
           if (runEvery("reserves_fees", 600 /* 10 minutes */)) {
             const cToken = new fuse.web3.eth.Contract(
@@ -326,7 +341,9 @@ async function eventLoop() {
               });
           }
 
-          if (runEvery("events", 600 /* 10 minutes */)) {
+          ///////////////// Liquidations /////////////////
+
+          if (runEvery("liquidations", 600 /* 10 minutes */)) {
             const cToken = new fuse.web3.eth.Contract(
               JSON.parse(
                 fuse.compoundContracts[
@@ -337,35 +354,20 @@ async function eventLoop() {
             );
 
             cToken
-              .getPastEvents("allEvents", {
+              .getPastEvents("LiquidateBorrow", {
                 fromBlock: 12060000,
                 toBlock: "latest"
               })
               .then(events => {
-                let eventCounts: { [key: string]: number } = {};
-
-                events.forEach(event => {
-                  if (event.event === undefined) {
-                    return;
-                  }
-
-                  if (eventCounts[event.event] === undefined) {
-                    eventCounts[event.event] = 1;
-                  } else {
-                    eventCounts[event.event] += 1;
-                  }
-                });
-
-                Object.keys(eventCounts).forEach(eventName => {
-                  poolAssetsEvents.set(
-                    { id, symbol: asset.underlyingSymbol, event: eventName },
-                    eventCounts[eventName]
-                  );
-                });
+                poolAssetLiquidations.set(
+                  { id, symbol: asset.underlyingSymbol },
+                  events.length
+                );
               });
           }
 
-          // Staked ALCX tracking
+          //////////////// Staked ALCX ////////////////
+
           if (
             asset.underlyingToken.toLowerCase() ===
               "0xdbdb4d16eda451d0503b854cf79d55697f90c8df".toLowerCase() &&
@@ -391,8 +393,10 @@ async function eventLoop() {
                 stakedALCXUnclaimedAmount.set(unclaimed / 1e18);
               });
           }
-        });
+        }
       });
+
+    /////////////////////// RSS /////////////////////
 
     if (runEvery("rss", 600 /* 10 mins */)) {
       fetch(`https://app.rari.capital/api/rss?poolID=${id}`)
@@ -401,6 +405,8 @@ async function eventLoop() {
           poolRSS.set({ id }, data.totalScore);
         });
     }
+
+    ///////////////// User Leverage /////////////////
 
     if (runEvery("user_leverage", 120 /* 2 minutes */)) {
       Promise.all([
@@ -417,6 +423,8 @@ async function eventLoop() {
         );
       });
     }
+
+    /////////////////// TWAPS //////////////////
 
     fetch(`https://api.rari.capital/fuse/twaps`)
       .then(res => res.json())
