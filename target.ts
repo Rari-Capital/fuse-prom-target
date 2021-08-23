@@ -359,10 +359,12 @@ async function eventLoop() {
                 toBlock: "latest"
               })
               .then(events => {
-                poolAssetLiquidations.set(
-                  { id, symbol: asset.underlyingSymbol },
-                  events.length
-                );
+                if (events.length != 0) {
+                  poolAssetLiquidations.set(
+                    { id, symbol: asset.underlyingSymbol },
+                    events.length
+                  );
+                }
               });
           }
 
