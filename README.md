@@ -21,4 +21,4 @@ npm run start-pm2
 
 JSON configuration for 5 dashboards that can be constructed with the data provided from `fuse-prom-target` is available in the [dashboards directory](/dashboards)!
 
-<img width="1611" alt="Screen Shot 2021-03-24 at 5 08 39 PM" src="https://user-images.githubusercontent.com/26209401/112399514-95858900-8cc3-11eb-8c78-8e5b62f1d300.png">
+<img width="1617" alt="Demo" src="https://user-images.githubusercontent.com/26209401/130535385-8e3d0915-a1b0-4668-aca6-06d5fca82df6.png">
