@@ -69,7 +69,9 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -77,7 +79,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd) / sum(fuse_pool_assets_supply_usd)",
@@ -98,14 +100,20 @@
         "conditions": [
           {
             "evaluator": {
-              "params": [-5000000],
+              "params": [
+                -10000000
+              ],
               "type": "lt"
             },
             "operator": {
               "type": "and"
             },
             "query": {
-              "params": ["A", "5m", "now"]
+              "params": [
+                "A",
+                "5m",
+                "now"
+              ]
             },
             "reducer": {
               "params": [],
@@ -115,7 +123,7 @@
           }
         ],
         "executionErrorState": "keep_state",
-        "for": "5m",
+        "for": "1m",
         "frequency": "1m",
         "handler": 1,
         "message": "Large withdrawal!",
@@ -230,7 +238,7 @@
         {
           "colorMode": "critical",
           "op": "lt",
-          "value": -5000000,
+          "value": -10000000,
           "visible": true
         }
       ],
@@ -367,14 +375,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -397,14 +407,20 @@
         "conditions": [
           {
             "evaluator": {
-              "params": [30],
+              "params": [
+                30
+              ],
               "type": "gt"
             },
             "operator": {
               "type": "and"
             },
             "query": {
-              "params": ["A", "5m", "now"]
+              "params": [
+                "A",
+                "5m",
+                "now"
+              ]
             },
             "reducer": {
               "params": [],
@@ -414,14 +430,20 @@
           },
           {
             "evaluator": {
-              "params": [20],
+              "params": [
+                20
+              ],
               "type": "gt"
             },
             "operator": {
               "type": "and"
             },
             "query": {
-              "params": ["B", "5m", "now"]
+              "params": [
+                "B",
+                "5m",
+                "now"
+              ]
             },
             "reducer": {
               "params": [],
@@ -431,7 +453,7 @@
           }
         ],
         "executionErrorState": "keep_state",
-        "for": "5m",
+        "for": "1m",
         "frequency": "1m",
         "handler": 1,
         "message": "There's been a large spike in liquidations/at risk positions.",
@@ -649,14 +671,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd)",
@@ -791,14 +815,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -848,14 +874,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -902,7 +930,10 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name", "value"],
+        "displayLabels": [
+          "name",
+          "value"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -911,7 +942,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -966,7 +999,10 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name", "value"],
+        "displayLabels": [
+          "name",
+          "value"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -975,7 +1011,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -1030,7 +1068,10 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name", "value"],
+        "displayLabels": [
+          "name",
+          "value"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -1039,7 +1080,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -1164,14 +1207,21 @@
     "list": []
   },
   "time": {
-    "from": "now-14d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": ["5s", "10s", "20s", "30s", "1m", "5m"]
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "20s",
+      "30s",
+      "1m",
+      "5m"
+    ]
   },
   "timezone": "",
   "title": "Fuse Overview",
   "uid": "NlUs6DwGk",
-  "version": 221
+  "version": 227
 }
