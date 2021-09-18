@@ -22,7 +22,7 @@
   "gnetId": null,
   "graphTooltip": 1,
   "id": 20,
-  "iteration": 1629763882837,
+  "iteration": 1631944895681,
   "links": [],
   "panels": [
     {
@@ -64,14 +64,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -120,14 +122,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -176,18 +180,20 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(delta(fuse_pool_assets_fees_usd[7d])) * 4",
+          "expr": "sum(delta(fuse_pool_assets_fees_usd{id=~\"$id\", symbol=~\"$symbol\"}[7d])) * 4",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -232,14 +238,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -288,14 +296,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -344,14 +354,16 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -763,7 +775,9 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name"],
+        "displayLabels": [
+          "name"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -772,7 +786,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -827,7 +843,9 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name"],
+        "displayLabels": [
+          "name"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -836,7 +854,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -891,7 +911,9 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name"],
+        "displayLabels": [
+          "name"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -955,7 +977,9 @@
       "interval": null,
       "links": [],
       "options": {
-        "displayLabels": ["name"],
+        "displayLabels": [
+          "name"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "hidden",
@@ -964,7 +988,9 @@
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -999,8 +1025,12 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": ["All"],
-          "value": ["$__all"]
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "grafanacloud-rari-prom",
         "definition": "label_values(fuse_pool_rss, id)",
@@ -1029,8 +1059,12 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": ["All"],
-          "value": ["$__all"]
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "grafanacloud-rari-prom",
         "definition": "label_values(fuse_pool_assets_supply_amount{id=~\"$id\"}, symbol)",
@@ -1058,12 +1092,12 @@
     ]
   },
   "time": {
-    "from": "now-14d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Fuse Fees/Reserves",
   "uid": "44n5PTlGk",
-  "version": 96
+  "version": 99
 }
