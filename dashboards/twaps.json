@@ -58,7 +58,9 @@
       "id": 3,
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -66,7 +68,7 @@
         "showThresholdMarkers": false,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "exemplar": true,
@@ -155,7 +157,7 @@
         "content": "",
         "mode": "markdown"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.1.4",
       "targets": [
         {
           "queryType": "randomWalk",
@@ -170,14 +172,20 @@
         "conditions": [
           {
             "evaluator": {
-              "params": [0],
+              "params": [
+                0
+              ],
               "type": "gt"
             },
             "operator": {
               "type": "and"
             },
             "query": {
-              "params": ["A", "10m", "now"]
+              "params": [
+                "A",
+                "10m",
+                "now"
+              ]
             },
             "reducer": {
               "params": [],
@@ -297,7 +305,14 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": ["5s", "10s", "20s", "30s", "1m", "5m"]
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "20s",
+      "30s",
+      "1m",
+      "5m"
+    ]
   },
   "timezone": "",
   "title": "Fuse TWAPs",
