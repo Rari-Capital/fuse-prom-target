@@ -207,7 +207,7 @@ function runEvery(key: Task, seconds: number, instantLastRunUpdate?: boolean) {
 async function eventLoop() {
   const [{ 0: ids, 1: fusePools }, ethPrice] = await Promise.all([
     fuse.contracts.FusePoolLens.methods
-      .getPublicPoolsWithData()
+      .getPublicPoolsByVerificationWithData(true)
       .call({ gas: 1e18 }),
     fuse.web3.utils.fromWei(await fuse.getEthUsdPriceBN()) as number
   ]);
