@@ -21,13 +21,6 @@ let twaps = new Gauge({
   labelNames: ["ticker"] as const
 });
 
-let userLeverage = new Gauge({
-  name: "fuse_userLeverage",
-  help: "Stores how many users are at different levels of leverage.",
-  // Levels: at_risk, liquidatable
-  labelNames: ["id", "level"] as const
-});
-
 let poolAssetsInterestRate = new Gauge({
   name: "fuse_pool_assets_interest_rate",
   help: "Stores the interest rates of each asset in each pool.",
@@ -114,30 +107,6 @@ let stakedALCXUnclaimedAmount = new Gauge({
   name: "fuse_staked_alcx_unclaimed_amount",
   help: "Stores how much protocol controlled ALCX is claimable from staking."
 });
-
-function fetchUsersWithHealth(
-  fuse: any,
-  comptroller: string,
-  maxHealth: number
-) {
-  return fuse.contracts.FusePoolLens.methods
-    .getPoolUsersWithData(comptroller, fuse.web3.utils.toBN(maxHealth))
-    .call()
-    .then((result: { account: string; totalBorrow: number }[][]) =>
-      result[0]
-        .filter(user => {
-          // Filter out users that are borrowing less than 0.1 ETH
-          return user.totalBorrow / 1e18 > 0.1;
-        })
-        .map(data => data.account)
-    ) as Promise<string[]>;
-}
-
-function removeDoubleCounts(array1: any[], array2: any[]) {
-  return array1.filter(function (val) {
-    return array2.indexOf(val) == -1;
-  });
-}
 
 export interface FuseAsset {
   cToken: string;
@@ -408,24 +377,6 @@ async function eventLoop() {
         .then(data => {
           poolRSS.set({ id }, data.totalScore);
         });
-    }
-
-    ///////////////// User Leverage /////////////////
-
-    if (runEvery("user_leverage", 120 /* 2 minutes */)) {
-      Promise.all([
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1e18),
-        fetchUsersWithHealth(fuse, fusePools[i].comptroller, 1.1e18)
-      ]).then(([underwaterUsersArray, atRiskUsersArray]) => {
-        userLeverage.set(
-          { id, level: "liquidatable" },
-          underwaterUsersArray.length
-        );
-        userLeverage.set(
-          { id, level: "at_risk" },
-          removeDoubleCounts(atRiskUsersArray, underwaterUsersArray).length
-        );
-      });
     }
 
     /////////////////// TWAPS //////////////////
