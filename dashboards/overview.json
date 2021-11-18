@@ -19,10 +19,12 @@
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": null,
   "graphTooltip": 1,
   "id": 3,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "datasource": "grafanacloud-rari-prom",
@@ -79,7 +81,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.4",
+      "pluginVersion": "8.2.4",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd) / sum(fuse_pool_assets_supply_usd)",
@@ -101,7 +103,7 @@
           {
             "evaluator": {
               "params": [
-                -10000000
+                -30000000
               ],
               "type": "lt"
             },
@@ -201,7 +203,7 @@
         ]
       },
       "gridPos": {
-        "h": 5,
+        "h": 7,
         "w": 6,
         "x": 4,
         "y": 0
@@ -238,7 +240,7 @@
         {
           "colorMode": "critical",
           "op": "lt",
-          "value": -10000000,
+          "value": -30000000,
           "visible": true
         }
       ],
@@ -384,7 +386,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.4",
+      "pluginVersion": "8.2.4",
       "targets": [
         {
           "exemplar": true,
@@ -402,65 +404,7 @@
       "type": "stat"
     },
     {
-      "alert": {
-        "alertRuleTags": {},
-        "conditions": [
-          {
-            "evaluator": {
-              "params": [
-                30
-              ],
-              "type": "gt"
-            },
-            "operator": {
-              "type": "and"
-            },
-            "query": {
-              "params": [
-                "A",
-                "5m",
-                "now"
-              ]
-            },
-            "reducer": {
-              "params": [],
-              "type": "percent_diff"
-            },
-            "type": "query"
-          },
-          {
-            "evaluator": {
-              "params": [
-                20
-              ],
-              "type": "gt"
-            },
-            "operator": {
-              "type": "and"
-            },
-            "query": {
-              "params": [
-                "B",
-                "5m",
-                "now"
-              ]
-            },
-            "reducer": {
-              "params": [],
-              "type": "percent_diff"
-            },
-            "type": "query"
-          }
-        ],
-        "executionErrorState": "keep_state",
-        "for": "1m",
-        "frequency": "1m",
-        "handler": 1,
-        "message": "There's been a large spike in liquidations/at risk positions.",
-        "name": "User Leverage Alert",
-        "noDataState": "keep_state",
-        "notifications": []
-      },
+      "cacheTimeout": null,
       "datasource": "grafanacloud-rari-prom",
       "fieldConfig": {
         "defaults": {
@@ -469,27 +413,30 @@
           },
           "custom": {
             "axisLabel": "",
-            "axisPlacement": "left",
+            "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
+            "drawStyle": "bars",
+            "fillOpacity": 0,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true,
+            "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -508,94 +455,19 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "At Risk"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Liquidatable"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "at_risk"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "leveraged"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "liquidatable"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                }
-              }
-            ]
           }
-        ]
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 7,
         "w": 6,
         "x": 4,
-        "y": 5
+        "y": 7
       },
-      "id": 16,
+      "id": 19,
+      "interval": null,
+      "links": [],
       "options": {
         "legend": {
           "calcs": [],
@@ -606,35 +478,21 @@
           "mode": "single"
         }
       },
-      "pluginVersion": "8.0.3",
+      "pluginVersion": "8.2.3-40566",
       "targets": [
         {
-          "expr": "sum(fuse_userLeverage{level=\"at_risk\"})",
+          "exemplar": true,
+          "expr": "sum by (id) (delta(fuse_pool_assets_liquidations[30m])) > 1",
+          "instant": false,
           "interval": "",
-          "legendFormat": "At Risk",
+          "legendFormat": "Pool {{id}}",
           "queryType": "randomWalk",
           "refId": "A"
-        },
-        {
-          "expr": "sum(fuse_userLeverage{level=\"liquidatable\"})",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Liquidatable",
-          "queryType": "randomWalk",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [
-        {
-          "colorMode": "critical",
-          "op": "gt",
-          "value": 30,
-          "visible": false
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "User Leverage",
+      "title": "Liquidation Deltas",
       "type": "timeseries"
     },
     {
@@ -680,7 +538,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.4",
+      "pluginVersion": "8.2.4",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd)",
@@ -694,92 +552,6 @@
       "timeShift": null,
       "title": "USD Total Borrowed",
       "type": "stat"
-    },
-    {
-      "datasource": "grafanacloud-rari-prom",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 4,
-        "y": 9
-      },
-      "id": 19,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.1.2",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum by (id) (fuse_pool_assets_liquidations)",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Pool {{id}}",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Liquidations Per Pool",
-      "type": "timeseries"
     },
     {
       "datasource": "grafanacloud-rari-prom",
@@ -824,7 +596,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.4",
+      "pluginVersion": "8.2.4",
       "targets": [
         {
           "exemplar": true,
@@ -883,7 +655,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.4",
+      "pluginVersion": "8.2.4",
       "targets": [
         {
           "exemplar": true,
@@ -1200,7 +972,7 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 30,
+  "schemaVersion": 32,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1223,5 +995,5 @@
   "timezone": "",
   "title": "Fuse Overview",
   "uid": "NlUs6DwGk",
-  "version": 227
+  "version": 240
 }
