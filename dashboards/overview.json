@@ -20,14 +20,16 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": null,
   "graphTooltip": 1,
   "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -81,7 +83,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.2.4",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd) / sum(fuse_pool_assets_supply_usd)",
@@ -91,8 +93,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Overall Utilization",
       "type": "gauge"
     },
@@ -133,7 +133,10 @@
         "noDataState": "keep_state",
         "notifications": []
       },
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -244,13 +247,14 @@
           "visible": true
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "USD Total TVL/TVB",
       "type": "timeseries"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -338,13 +342,14 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Asset USD TVB/TVL ",
       "type": "timeseries"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -386,7 +391,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.2.4",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "exemplar": true,
@@ -398,14 +403,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "USD Total Supplied",
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -416,7 +421,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
-            "fillOpacity": 0,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -466,7 +471,6 @@
         "y": 7
       },
       "id": 19,
-      "interval": null,
       "links": [],
       "options": {
         "legend": {
@@ -490,13 +494,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Liquidation Deltas",
       "type": "timeseries"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -538,7 +543,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.2.4",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "expr": "sum(fuse_pool_assets_borrow_usd)",
@@ -548,13 +553,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "USD Total Borrowed",
       "type": "stat"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -596,7 +602,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.2.4",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "exemplar": true,
@@ -607,13 +613,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Fees",
       "type": "stat"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -655,7 +662,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.2.4",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "exemplar": true,
@@ -666,14 +673,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Reserves",
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -699,7 +706,6 @@
         "y": 14
       },
       "id": 28,
-      "interval": null,
       "links": [],
       "options": {
         "displayLabels": [
@@ -735,14 +741,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Pool USD TVL",
       "type": "piechart"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -768,7 +774,6 @@
         "y": 14
       },
       "id": 27,
-      "interval": null,
       "links": [],
       "options": {
         "displayLabels": [
@@ -796,22 +801,26 @@
       "pluginVersion": "7.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafanacloud-prom"
+          },
           "exemplar": true,
-          "expr": "sum by (symbol) (fuse_pool_assets_supply_usd)",
+          "expr": "sum by (symbol) (fuse_pool_assets_supply_usd) > 10",
           "hide": false,
           "interval": "",
           "legendFormat": "{{symbol}}",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Asset USD TVL",
       "type": "piechart"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -837,7 +846,6 @@
         "y": 14
       },
       "id": 29,
-      "interval": null,
       "links": [],
       "options": {
         "displayLabels": [
@@ -865,21 +873,26 @@
       "pluginVersion": "7.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafanacloud-prom"
+          },
           "exemplar": true,
-          "expr": "sum by (symbol) (fuse_pool_assets_borrow_usd)",
+          "expr": "sum by (symbol) (fuse_pool_assets_borrow_usd) > 10",
           "hide": false,
           "interval": "",
           "legendFormat": "{{symbol}}",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Asset USD TVB",
       "type": "piechart"
     },
     {
-      "datasource": "grafanacloud-rari-prom",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafanacloud-prom"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -965,14 +978,12 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "USD TVB/TVL Per Pool",
       "type": "timeseries"
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 32,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -995,5 +1006,6 @@
   "timezone": "",
   "title": "Fuse Overview",
   "uid": "NlUs6DwGk",
-  "version": 240
+  "version": 242,
+  "weekStart": ""
 }
